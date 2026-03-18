@@ -1,0 +1,779 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="utf-8">
+    <meta content="width=device-width, initial-scale=1.0" name="viewport">
+    <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet">
+    <!-- Chart.js pour les graphiques -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+    <!-- Leaflet pour la carte -->
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+    <script>
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        "primary": "#135bec",
+                        "terracotta": "#E2725B",
+                        "atlantic": "#00567a",
+                        "background-light": "#f6f6f8",
+                        "background-dark": "#101622",
+                    },
+                    fontFamily: {
+                        "display": ["Inter", "sans-serif"]
+                    },
+                    animation: {
+                        'float': 'float 6s ease-in-out infinite',
+                        'pulse-slow': 'pulse 3s cubic-bezier(0.4, 0, 0.6, 1) infinite',
+                        'slide-in': 'slideIn 0.5s ease-out forwards',
+                        'fade-in': 'fadeIn 0.8s ease-out forwards',
+                    },
+                    keyframes: {
+                        float: {
+                            '0%, 100%': { transform: 'translateY(0px)' },
+                            '50%': { transform: 'translateY(-20px)' },
+                        },
+                        slideIn: {
+                            from: { opacity: '0', transform: 'translateY(30px)' },
+                            to: { opacity: '1', transform: 'translateY(0)' },
+                        },
+                        fadeIn: {
+                            from: { opacity: '0' },
+                            to: { opacity: '1' },
+                        }
+                    }
+                },
+            },
+        }
+    </script>
+    <style>
+        body { font-family: 'Inter', sans-serif; }
+        .hero-gradient { background: linear-gradient(135deg, rgba(226, 114, 91, 0.05) 0%, rgba(19, 91, 236, 0.05) 100%); }
+        .glass-effect {
+            background: rgba(255, 255, 255, 0.7);
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+        .dark .glass-effect {
+            background: rgba(17, 25, 40, 0.75);
+            border: 1px solid rgba(255, 255, 255, 0.125);
+        }
+        .card-hover {
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        .card-hover:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 20px 40px -15px rgba(19, 91, 236, 0.3);
+        }
+
+        /* Styles pour les graphiques */
+        .chart-container {
+            position: relative;
+            height: 300px;
+            width: 100%;
+            opacity: 0;
+            animation: fadeIn 1s ease-out forwards;
+        }
+
+        .trend-up {
+            color: #10b981;
+        }
+
+        .trend-down {
+            color: #ef4444;
+        }
+
+        /* Animation des stats */
+        .stat-card {
+            transition: all 0.3s ease;
+            animation: slideIn 0.5s ease-out forwards;
+            opacity: 0;
+        }
+
+        .stat-card:nth-child(1) { animation-delay: 0.1s; }
+        .stat-card:nth-child(2) { animation-delay: 0.2s; }
+        .stat-card:nth-child(3) { animation-delay: 0.3s; }
+        .stat-card:nth-child(4) { animation-delay: 0.4s; }
+
+        @keyframes slideIn {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+
+        /* Style pour la carte miniature */
+        #mini-map {
+            height: 200px;
+            width: 100%;
+            border-radius: 0.75rem;
+            z-index: 1;
+        }
+
+        .trend-badge {
+            padding: 0.25rem 0.75rem;
+            border-radius: 9999px;
+            font-size: 0.75rem;
+            font-weight: 600;
+        }
+
+        /* Custom scrollbar */
+        ::-webkit-scrollbar {
+            width: 8px;
+            height: 8px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: #f1f1f1;
+            border-radius: 10px;
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: #135bec;
+            border-radius: 10px;
+        }
+
+        ::-webkit-scrollbar-thumb:hover {
+            background: #E2725B;
+        }
+    </style>
+</head>
+<body class="bg-background-light dark:bg-background-dark font-display text-slate-900 dark:text-slate-100 transition-colors duration-300">
+    <div class="relative flex min-h-screen w-full flex-col overflow-x-hidden">
+        <!-- Decorative Background Elements -->
+        <div class="fixed inset-0 overflow-hidden pointer-events-none">
+            <div class="absolute top-20 left-10 w-96 h-96 bg-terracotta/10 rounded-full blur-3xl animate-pulse-slow"></div>
+            <div class="absolute bottom-20 right-10 w-[500px] h-[500px] bg-primary/10 rounded-full blur-3xl animate-float"></div>
+            <div class="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-[800px] h-[800px] bg-atlantic/5 rounded-full blur-3xl"></div>
+        </div>
+
+        <!-- Navigation Bar -->
+        <header class="sticky top-0 z-50 w-full border-b border-slate-200/60 dark:border-slate-800/60 bg-white/80 dark:bg-background-dark/80 backdrop-blur-md px-6 md:px-20 py-4 animate-slide-in">
+            <div class="max-w-7xl mx-auto flex items-center justify-between">
+                <div class="flex items-center gap-3">
+                    <div class="text-primary">
+                        <span class="material-symbols-outlined text-3xl font-bold">domain</span>
+                    </div>
+                    <h2 class="text-slate-900 dark:text-slate-50 text-xl font-bold tracking-tight">Dakar Immo AI Predictor</h2>
+                </div>
+                <div class="hidden md:flex flex-1 justify-end items-center gap-10">
+                    <nav class="flex items-center gap-8">
+                        <a class="text-slate-600 dark:text-slate-400 hover:text-primary dark:hover:text-primary transition-colors text-sm font-semibold" href="/">Home</a>
+                        <a class="text-slate-600 dark:text-slate-400 hover:text-primary dark:hover:text-primary transition-colors text-sm font-semibold" href="/prediction">Prédiction</a>
+                        <a class="text-primary font-semibold text-sm border-b-2 border-primary pb-1" href="/dashboard">Dashboard</a>
+                        <a class="text-slate-600 dark:text-slate-400 hover:text-primary dark:hover:text-primary transition-colors text-sm font-semibold" href="/about">About</a>
+                    </nav>
+                </div>
+                <div class="md:hidden">
+                    <span class="material-symbols-outlined text-slate-900 dark:text-slate-100">menu</span>
+                </div>
+            </div>
+        </header>
+
+        <main class="flex-1 px-4 py-12 md:py-16 relative">
+            <div class="max-w-7xl mx-auto">
+                <!-- Page Header -->
+                <div class="text-center mb-12 animate-slide-in">
+                    <span class="inline-block px-4 py-2 bg-primary/10 text-primary rounded-full text-sm font-semibold mb-4">
+                        <span class="material-symbols-outlined text-sm align-middle mr-1">trending_up</span>
+                        Analyse du Marché
+                    </span>
+                    <h1 class="text-4xl md:text-5xl font-extrabold text-slate-900 dark:text-white mb-4">
+                        Tendances du marché <span class="text-terracotta">immobilier</span> à
+                        <span class="relative">
+                            <span class="text-primary">Dakar</span>
+                            <span class="absolute -bottom-2 left-0 w-full h-1 bg-primary/30 rounded-full"></span>
+                        </span>
+                    </h1>
+                    <p class="text-slate-600 dark:text-slate-400 text-lg max-w-2xl mx-auto">
+                        Analysez l'évolution des prix, comparez les quartiers et anticipez les tendances du marché dakarois.
+                    </p>
+                </div>
+
+                <!-- Filtres de période -->
+                <div class="flex flex-wrap justify-center gap-3 mb-8 animate-slide-in" style="animation-delay: 0.1s;">
+                    <span class="text-slate-500 dark:text-slate-400 text-sm font-medium self-center">Période :</span>
+                    <button class="period-filter active px-4 py-2 rounded-full border border-primary text-primary hover:bg-primary hover:text-white transition-all text-sm font-semibold" data-period="7">7 jours</button>
+                    <button class="period-filter px-4 py-2 rounded-full border border-slate-300 dark:border-slate-700 hover:border-primary hover:text-primary transition-all text-sm font-semibold" data-period="30">30 jours</button>
+                    <button class="period-filter px-4 py-2 rounded-full border border-slate-300 dark:border-slate-700 hover:border-primary hover:text-primary transition-all text-sm font-semibold" data-period="90">3 mois</button>
+                    <button class="period-filter px-4 py-2 rounded-full border border-slate-300 dark:border-slate-700 hover:border-primary hover:text-primary transition-all text-sm font-semibold" data-period="365">1 an</button>
+                </div>
+
+                <!-- Stats Cards -->
+                <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8">
+                    <div class="stat-card glass-effect rounded-2xl p-4 text-center">
+                        <span class="material-symbols-outlined text-primary text-3xl mb-2">analytics</span>
+                        <p class="text-xs text-slate-500 dark:text-slate-400">Prix moyen</p>
+                        <p class="text-xl font-bold" id="avg-price">0 FCFA</p>
+                        <span class="trend-up text-xs flex items-center justify-center gap-1" id="avg-trend">
+                            <span class="material-symbols-outlined text-sm">trending_up</span>
+                            +4.8%
+                        </span>
+                    </div>
+                    <div class="stat-card glass-effect rounded-2xl p-4 text-center">
+                        <span class="material-symbols-outlined text-terracotta text-3xl mb-2">inventory</span>
+                        <p class="text-xs text-slate-500 dark:text-slate-400">Annonces</p>
+                        <p class="text-xl font-bold" id="total-ads">0</p>
+                        <span class="trend-up text-xs flex items-center justify-center gap-1" id="ads-trend">
+                            <span class="material-symbols-outlined text-sm">trending_up</span>
+                            +8.3%
+                        </span>
+                    </div>
+                    <div class="stat-card glass-effect rounded-2xl p-4 text-center">
+                        <span class="material-symbols-outlined text-primary text-3xl mb-2">speed</span>
+                        <p class="text-xs text-slate-500 dark:text-slate-400">Rotation</p>
+                        <p class="text-xl font-bold" id="rotation">15 jours</p>
+                        <span class="trend-down text-xs flex items-center justify-center gap-1">
+                            <span class="material-symbols-outlined text-sm">trending_down</span>
+                            -2 jours
+                        </span>
+                    </div>
+                    <div class="stat-card glass-effect rounded-2xl p-4 text-center">
+                        <span class="material-symbols-outlined text-terracotta text-3xl mb-2">home_work</span>
+                        <p class="text-xs text-slate-500 dark:text-slate-400">Quartiers actifs</p>
+                        <p class="text-xl font-bold" id="quartiers-count">0</p>
+                        <span class="trend-up text-xs flex items-center justify-center gap-1">
+                            <span class="material-symbols-outlined text-sm">add</span>
+                            +5
+                        </span>
+                    </div>
+                </div>
+
+                <!-- Graphiques principaux -->
+                <div class="grid lg:grid-cols-2 gap-6 mb-8">
+                    <!-- Graphique d'évolution des prix -->
+                    <div class="glass-effect rounded-3xl p-6 card-hover animate-slide-in" style="animation-delay: 0.2s;">
+                        <div class="flex justify-between items-center mb-4">
+                            <h3 class="text-lg font-bold text-slate-900 dark:text-white flex items-center gap-2">
+                                <span class="material-symbols-outlined text-primary">show_chart</span>
+                                Évolution des prix
+                            </h3>
+                            <select id="price-chart-quartier" class="text-sm px-3 py-1 rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800">
+                                <option value="all">Tous les quartiers</option>
+                            </select>
+                        </div>
+                        <div class="chart-container">
+                            <canvas id="priceChart"></canvas>
+                        </div>
+                    </div>
+
+                    <!-- Graphique de distribution par quartier -->
+                    <div class="glass-effect rounded-3xl p-6 card-hover animate-slide-in" style="animation-delay: 0.3s;">
+                        <div class="flex justify-between items-center mb-4">
+                            <h3 class="text-lg font-bold text-slate-900 dark:text-white flex items-center gap-2">
+                                <span class="material-symbols-outlined text-primary">bar_chart</span>
+                                Top 10 quartiers
+                            </h3>
+                            <span class="text-xs text-slate-500">Moyenne en FCFA</span>
+                        </div>
+                        <div class="chart-container">
+                            <canvas id="quartierChart"></canvas>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="grid lg:grid-cols-3 gap-6 mb-8">
+                    <!-- Graphique des commodités -->
+                    <div class="lg:col-span-1 glass-effect rounded-3xl p-6 card-hover animate-slide-in" style="animation-delay: 0.4s;">
+                        <h3 class="text-lg font-bold text-slate-900 dark:text-white mb-4 flex items-center gap-2">
+                            <span class="material-symbols-outlined text-primary">checklist</span>
+                            Top commodités
+                        </h3>
+                        <div class="chart-container" style="height: 250px;">
+                            <canvas id="commoditesChart"></canvas>
+                        </div>
+                    </div>
+
+                    <!-- Prédictions et tendances -->
+                    <div class="lg:col-span-2 glass-effect rounded-3xl p-6 card-hover animate-slide-in" style="animation-delay: 0.5s;">
+                        <h3 class="text-lg font-bold text-slate-900 dark:text-white mb-4 flex items-center gap-2">
+                            <span class="material-symbols-outlined text-primary">trending_up</span>
+                            Prévisions 30 jours
+                        </h3>
+                        <div class="chart-container" style="height: 250px;">
+                            <canvas id="predictionChart"></canvas>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Distribution par zone et tableau -->
+                <div class="grid lg:grid-cols-3 gap-6">
+                    <!-- Carte miniature -->
+                    <div class="lg:col-span-1 glass-effect rounded-3xl p-6 card-hover animate-slide-in" style="animation-delay: 0.6s;">
+                        <h3 class="text-lg font-bold text-slate-900 dark:text-white mb-4 flex items-center gap-2">
+                            <span class="material-symbols-outlined text-primary">map</span>
+                            Carte des prix
+                        </h3>
+                        <div id="mini-map"></div>
+                        <div class="mt-3 flex justify-between text-xs text-slate-500">
+                            <span class="flex items-center gap-1"><span class="w-2 h-2 rounded-full bg-green-500"></span> Éco (< 200k)</span>
+                            <span class="flex items-center gap-1"><span class="w-2 h-2 rounded-full bg-yellow-500"></span> Moyen (200-350k)</span>
+                            <span class="flex items-center gap-1"><span class="w-2 h-2 rounded-full bg-primary"></span> Bon (350-450k)</span>
+                            <span class="flex items-center gap-1"><span class="w-2 h-2 rounded-full bg-terracotta"></span> Luxe (> 450k)</span>
+                        </div>
+                    </div>
+
+                    <!-- Tableau des quartiers -->
+                    <div class="lg:col-span-2 glass-effect rounded-3xl p-6 card-hover animate-slide-in" style="animation-delay: 0.7s;">
+                        <h3 class="text-lg font-bold text-slate-900 dark:text-white mb-4 flex items-center gap-2">
+                            <span class="material-symbols-outlined text-primary">table_rows</span>
+                            Comparatif des quartiers
+                        </h3>
+                        <div class="overflow-x-auto max-h-96 overflow-y-auto">
+                            <table class="w-full text-sm">
+                                <thead class="sticky top-0 bg-white dark:bg-slate-800">
+                                    <tr class="border-b border-slate-200 dark:border-slate-700">
+                                        <th class="text-left py-3 font-semibold">Quartier</th>
+                                        <th class="text-right py-3 font-semibold">Prix moyen</th>
+                                        <th class="text-right py-3 font-semibold">Prix/m²</th>
+                                        <th class="text-right py-3 font-semibold">Évolution</th>
+                                        <th class="text-right py-3 font-semibold">Annonces</th>
+                                        <th class="text-center py-3 font-semibold">Tendance</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="quartier-table-body">
+                                    <!-- Rempli par JavaScript -->
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </main>
+
+        <!-- Footer -->
+        <footer class="bg-background-light dark:bg-background-dark py-12 px-6 border-t border-slate-200 dark:border-slate-800 animate-slide-in" style="animation-delay: 0.8s;">
+            <div class="max-w-7xl mx-auto flex flex-col md:flex-row justify-between items-center gap-8">
+                <div class="flex items-center gap-3">
+                    <span class="material-symbols-outlined text-primary text-2xl">domain</span>
+                    <span class="text-slate-900 dark:text-slate-100 font-bold">Dakar Rent Predictor</span>
+                </div>
+                <div class="flex gap-8 text-sm text-slate-500 dark:text-slate-400 font-medium">
+                    <a class="hover:text-primary transition-colors" href="#">Privacy Policy</a>
+                    <a class="hover:text-primary transition-colors" href="#">Terms of Service</a>
+                    <a class="hover:text-primary transition-colors" href="#">Contact</a>
+                </div>
+                <div class="flex gap-4">
+                    <button class="size-10 flex items-center justify-center rounded-full bg-slate-200 dark:bg-slate-800 text-slate-600 dark:text-slate-300 hover:bg-primary hover:text-white transition-all">
+                        <span class="material-symbols-outlined text-lg">public</span>
+                    </button>
+                    <button class="size-10 flex items-center justify-center rounded-full bg-slate-200 dark:bg-slate-800 text-slate-600 dark:text-slate-300 hover:bg-primary hover:text-white transition-all">
+                        <span class="material-symbols-outlined text-lg">alternate_email</span>
+                    </button>
+                </div>
+            </div>
+            <div class="text-center mt-8 text-slate-400 dark:text-slate-600 text-xs">
+                © 2026 Dakar Immo AI Predictor. Tous droits réservés. Données mises à jour en temps réel. Gana Faye
+            </div>
+        </footer>
+    </div>
+
+    <script>
+        // ============================================
+        // DONNÉES COMPLÈTES DES QUARTIERS (40+)
+        // ============================================
+        const quartiersData = {
+            // DAKAR CENTRE
+            "Plateau": { prixMoyen: 350000, prixM2: 7000, evolution: "+2.1%", annonces: 312, zone: "Centre" },
+            "Gueule Tapée": { prixMoyen: 280000, prixM2: 5600, evolution: "+3.2%", annonces: 145, zone: "Centre" },
+            "Fann-Point E": { prixMoyen: 360000, prixM2: 7200, evolution: "+4.0%", annonces: 234, zone: "Centre" },
+            "Médina": { prixMoyen: 250000, prixM2: 5000, evolution: "+5.1%", annonces: 267, zone: "Centre" },
+            "Colobane": { prixMoyen: 240000, prixM2: 4800, evolution: "+2.8%", annonces: 189, zone: "Centre" },
+            "Grand Dakar": { prixMoyen: 260000, prixM2: 5200, evolution: "+3.9%", annonces: 178, zone: "Centre" },
+            "Hann Bel-Air": { prixMoyen: 270000, prixM2: 5400, evolution: "+2.3%", annonces: 156, zone: "Centre" },
+
+            // ALMADIES
+            "Almadies": { prixMoyen: 450000, prixM2: 9000, evolution: "+5.2%", annonces: 245, zone: "Ouest" },
+            "Ngor": { prixMoyen: 380000, prixM2: 7600, evolution: "+8.3%", annonces: 189, zone: "Ouest" },
+            "Ouakam": { prixMoyen: 300000, prixM2: 6000, evolution: "+1.2%", annonces: 167, zone: "Ouest" },
+            "Yoff": { prixMoyen: 280000, prixM2: 5600, evolution: "+4.5%", annonces: 221, zone: "Ouest" },
+
+            // OUEST RÉSIDENTIEL
+            "Mermoz": { prixMoyen: 340000, prixM2: 6800, evolution: "+3.4%", annonces: 203, zone: "Ouest" },
+            "Sacre Coeur": { prixMoyen: 330000, prixM2: 6600, evolution: "+6.1%", annonces: 178, zone: "Ouest" },
+            "Liberté 6": { prixMoyen: 290000, prixM2: 5800, evolution: "+4.2%", annonces: 145, zone: "Ouest" },
+            "Point E": { prixMoyen: 360000, prixM2: 7200, evolution: "+2.8%", annonces: 145, zone: "Ouest" },
+
+            // PIKINE
+            "Pikine": { prixMoyen: 180000, prixM2: 3600, evolution: "+7.2%", annonces: 423, zone: "Banlieue" },
+            "Pikine Tally Diallo": { prixMoyen: 170000, prixM2: 3400, evolution: "+6.5%", annonces: 189, zone: "Banlieue" },
+            "Pikine Ouest": { prixMoyen: 165000, prixM2: 3300, evolution: "+5.8%", annonces: 156, zone: "Banlieue" },
+            "Djida Thiaroye Kao": { prixMoyen: 155000, prixM2: 3100, evolution: "+5.3%", annonces: 134, zone: "Banlieue" },
+
+            // GUEDIAWAYE
+            "Guediawaye": { prixMoyen: 165000, prixM2: 3300, evolution: "+6.8%", annonces: 289, zone: "Banlieue" },
+            "Golf Sud": { prixMoyen: 160000, prixM2: 3200, evolution: "+5.4%", annonces: 167, zone: "Banlieue" },
+            "Sam Notaire": { prixMoyen: 155000, prixM2: 3100, evolution: "+7.1%", annonces: 145, zone: "Banlieue" },
+
+            // RUFISQUE
+            "Rufisque": { prixMoyen: 140000, prixM2: 2800, evolution: "+5.6%", annonces: 267, zone: "Périphérie" },
+            "Rufisque Ouest": { prixMoyen: 145000, prixM2: 2900, evolution: "+6.2%", annonces: 178, zone: "Périphérie" },
+            "Rufisque Est": { prixMoyen: 135000, prixM2: 2700, evolution: "+4.8%", annonces: 145, zone: "Périphérie" },
+            "Bargny": { prixMoyen: 125000, prixM2: 2500, evolution: "+5.9%", annonces: 189, zone: "Périphérie" },
+            "Sangalkam": { prixMoyen: 130000, prixM2: 2600, evolution: "+8.4%", annonces: 134, zone: "Périphérie" },
+
+            // KEUR MASSAR
+            "Keur Massar": { prixMoyen: 145000, prixM2: 2900, evolution: "+9.2%", annonces: 223, zone: "Banlieue" },
+            "Yeumbeul": { prixMoyen: 150000, prixM2: 3000, evolution: "+7.6%", annonces: 178, zone: "Banlieue" },
+            "Malika": { prixMoyen: 140000, prixM2: 2800, evolution: "+8.1%", annonces: 156, zone: "Banlieue" },
+
+            // DAKAR NORD
+            "Parcelles Assainies": { prixMoyen: 200000, prixM2: 4000, evolution: "+4.3%", annonces: 234, zone: "Nord" },
+            "Grand Yoff": { prixMoyen: 220000, prixM2: 4400, evolution: "+3.7%", annonces: 267, zone: "Nord" },
+            "HLM": { prixMoyen: 230000, prixM2: 4600, evolution: "+2.5%", annonces: 189, zone: "Nord" },
+            "Dieuppeul": { prixMoyen: 310000, prixM2: 6200, evolution: "+4.1%", annonces: 156, zone: "Nord" },
+
+            // DAKAR SUD
+            "Sicap Liberté": { prixMoyen: 280000, prixM2: 5600, evolution: "+3.2%", annonces: 178, zone: "Sud" },
+            "Fass": { prixMoyen: 240000, prixM2: 4800, evolution: "+2.9%", annonces: 145, zone: "Sud" },
+            "Gare": { prixMoyen: 230000, prixM2: 4600, evolution: "+2.1%", annonces: 123, zone: "Sud" }
+        };
+
+        // ============================================
+        // FONCTIONS UTILITAIRES
+        // ============================================
+        function calculateStats() {
+            const valeurs = Object.values(quartiersData);
+            const totalAnnonces = valeurs.reduce((sum, q) => sum + q.annonces, 0);
+            const prixMoyen = Math.round(valeurs.reduce((sum, q) => sum + q.prixMoyen, 0) / valeurs.length);
+
+            return {
+                prixMoyen,
+                totalAnnonces,
+                quartiersCount: valeurs.length
+            };
+        }
+
+        function generateHistoricalData(days, basePrice, volatility) {
+            const data = [];
+            const today = new Date();
+            for (let i = days; i >= 0; i--) {
+                const date = new Date(today);
+                date.setDate(date.getDate() - i);
+                const randomFactor = 1 + (Math.random() - 0.5) * volatility;
+                data.push({
+                    date: date,
+                    price: Math.round(basePrice * randomFactor / 1000) * 1000
+                });
+            }
+            return data;
+        }
+
+        // ============================================
+        // INITIALISATION
+        // ============================================
+        document.addEventListener('DOMContentLoaded', function() {
+            const stats = calculateStats();
+
+            // Mise à jour des stats
+            document.getElementById('avg-price').textContent = stats.prixMoyen.toLocaleString() + ' FCFA';
+            document.getElementById('total-ads').textContent = stats.totalAnnonces.toLocaleString();
+            document.getElementById('quartiers-count').textContent = stats.quartiersCount;
+
+            // Remplir le select des quartiers
+            const selectQuartier = document.getElementById('price-chart-quartier');
+            Object.keys(quartiersData).sort().forEach(quartier => {
+                const option = document.createElement('option');
+                option.value = quartier;
+                option.textContent = quartier;
+                selectQuartier.appendChild(option);
+            });
+
+            // ========================================
+            // GRAPHIQUE 1: Évolution des prix
+            // ========================================
+            const priceCtx = document.getElementById('priceChart').getContext('2d');
+            const historicalData = generateHistoricalData(30, stats.prixMoyen, 0.15);
+
+            const priceChart = new Chart(priceCtx, {
+                type: 'line',
+                data: {
+                    labels: historicalData.map(d => d.date.toLocaleDateString('fr-FR', { day: '2-digit', month: 'short' })),
+                    datasets: [{
+                        label: 'Prix moyen (FCFA)',
+                        data: historicalData.map(d => d.price),
+                        borderColor: '#135bec',
+                        backgroundColor: 'rgba(19, 91, 236, 0.1)',
+                        tension: 0.4,
+                        fill: true,
+                        pointBackgroundColor: '#E2725B',
+                        pointBorderColor: 'white',
+                        pointBorderWidth: 2,
+                        pointRadius: 4,
+                        pointHoverRadius: 6
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: { display: false },
+                        tooltip: {
+                            callbacks: {
+                                label: (ctx) => ctx.raw.toLocaleString() + ' FCFA'
+                            }
+                        }
+                    },
+                    scales: {
+                        y: {
+                            ticks: { callback: (v) => v.toLocaleString() + ' FCFA' },
+                            grid: { color: 'rgba(0,0,0,0.05)' }
+                        },
+                        x: { grid: { display: false } }
+                    }
+                }
+            });
+
+            // ========================================
+            // GRAPHIQUE 2: Top 10 quartiers
+            // ========================================
+            const quartierCtx = document.getElementById('quartierChart').getContext('2d');
+            const topQuartiers = Object.entries(quartiersData)
+                .sort((a, b) => b[1].prixMoyen - a[1].prixMoyen)
+                .slice(0, 10);
+
+            const quartierChart = new Chart(quartierCtx, {
+                type: 'bar',
+                data: {
+                    labels: topQuartiers.map(([nom]) => nom),
+                    datasets: [{
+                        label: 'Prix moyen (FCFA)',
+                        data: topQuartiers.map(([, data]) => data.prixMoyen),
+                        backgroundColor: topQuartiers.map(([, data]) => {
+                            if (data.prixMoyen > 400000) return '#E2725B';
+                            if (data.prixMoyen > 300000) return '#135bec';
+                            if (data.prixMoyen > 200000) return '#f59e0b';
+                            return '#10b981';
+                        }),
+                        borderRadius: 8,
+                        barPercentage: 0.6
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: { display: false },
+                        tooltip: {
+                            callbacks: {
+                                label: (ctx) => ctx.raw.toLocaleString() + ' FCFA'
+                            }
+                        }
+                    },
+                    scales: {
+                        y: {
+                            ticks: { callback: (v) => (v/1000).toFixed(0) + 'k' },
+                            grid: { color: 'rgba(0,0,0,0.05)' }
+                        },
+                        x: { grid: { display: false } }
+                    }
+                }
+            });
+
+            // ========================================
+            // GRAPHIQUE 3: Commodités
+            // ========================================
+            const commoditesCtx = document.getElementById('commoditesChart').getContext('2d');
+            new Chart(commoditesCtx, {
+                type: 'doughnut',
+                data: {
+                    labels: ['Parking', 'Climatisation', 'Gardien', 'Meublé', 'Terrasse', 'Piscine'],
+                    datasets: [{
+                        data: [85, 72, 68, 54, 43, 21],
+                        backgroundColor: ['#E2725B', '#135bec', '#00567a', '#10b981', '#f59e0b', '#8b5cf6'],
+                        borderWidth: 0
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: { legend: { position: 'bottom' } },
+                    cutout: '60%'
+                }
+            });
+
+            // ========================================
+            // GRAPHIQUE 4: Prévisions
+            // ========================================
+            const predictionCtx = document.getElementById('predictionChart').getContext('2d');
+            const predictionData = generateHistoricalData(30, stats.prixMoyen * 1.02, 0.08);
+
+            new Chart(predictionCtx, {
+                type: 'line',
+                data: {
+                    labels: predictionData.map(d => d.date.toLocaleDateString('fr-FR', { day: '2-digit', month: 'short' })),
+                    datasets: [
+                        {
+                            label: 'Haute',
+                            data: predictionData.map(d => Math.round(d.price * 1.1 / 1000) * 1000),
+                            borderColor: 'rgba(19, 91, 236, 0.3)',
+                            borderDash: [5, 5],
+                            pointRadius: 0
+                        },
+                        {
+                            label: 'Moyenne',
+                            data: predictionData.map(d => d.price),
+                            borderColor: '#135bec',
+                            backgroundColor: 'rgba(19, 91, 236, 0.1)',
+                            fill: '+1',
+                            tension: 0.4,
+                            pointRadius: 0
+                        },
+                        {
+                            label: 'Basse',
+                            data: predictionData.map(d => Math.round(d.price * 0.9 / 1000) * 1000),
+                            borderColor: 'rgba(226, 114, 91, 0.3)',
+                            borderDash: [5, 5],
+                            pointRadius: 0
+                        }
+                    ]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: { display: false },
+                        tooltip: {
+                            callbacks: {
+                                label: (ctx) => ctx.raw.toLocaleString() + ' FCFA'
+                            }
+                        }
+                    },
+                    scales: {
+                        y: {
+                            ticks: { callback: (v) => v.toLocaleString() + ' FCFA' }
+                        },
+                        x: { grid: { display: false } }
+                    }
+                }
+            });
+
+            // ========================================
+            // TABLEAU DES QUARTIERS
+            // ========================================
+            const tableBody = document.getElementById('quartier-table-body');
+            Object.entries(quartiersData)
+                .sort((a, b) => b[1].prixMoyen - a[1].prixMoyen)
+                .forEach(([nom, data]) => {
+                    const evolutionClass = data.evolution.includes('+') ? 'trend-up' : 'trend-down';
+                    const evolutionIcon = data.evolution.includes('+') ? 'trending_up' : 'trending_down';
+
+                    tableBody.innerHTML += `
+                        <tr class="border-b border-slate-100 dark:border-slate-800 hover:bg-slate-50 dark:hover:bg-slate-800/50 transition-colors">
+                            <td class="py-3 font-medium">${nom}</td>
+                            <td class="text-right">${data.prixMoyen.toLocaleString()} FCFA</td>
+                            <td class="text-right">${data.prixM2.toLocaleString()} FCFA</td>
+                            <td class="text-right ${evolutionClass}">${data.evolution}</td>
+                            <td class="text-right">${data.annonces}</td>
+                            <td class="text-center">
+                                <span class="material-symbols-outlined ${evolutionClass}" style="font-size: 1.2rem;">${evolutionIcon}</span>
+                            </td>
+                        </tr>
+                    `;
+                });
+
+            // ========================================
+            // CARTE MINIATURE
+            // ========================================
+            const miniMap = L.map('mini-map').setView([14.7167, -17.4677], 11);
+            L.tileLayer('https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png', {
+                attribution: '&copy; OpenStreetMap'
+            }).addTo(miniMap);
+
+            // Coordonnées des quartiers
+            const coordsMap = {
+                "Almadies": [14.7445, -17.5315], "Plateau": [14.6928, -17.4467],
+                "Ngor": [14.7561, -17.5150], "Fann-Point E": [14.6865, -17.4678],
+                "Mermoz": [14.7077, -17.4823], "Ouakam": [14.7208, -17.5008],
+                "Yoff": [14.7541, -17.4750], "Sacre Coeur": [14.7203, -17.4578],
+                "Point E": [14.6983, -17.4575], "Pikine": [14.7645, -17.3900],
+                "Guediawaye": [14.7750, -17.4042], "Rufisque": [14.7167, -17.2667],
+                "Keur Massar": [14.7861, -17.3403], "Grand Yoff": [14.7319, -17.4425],
+                "Parcelles Assainies": [14.7458, -17.4397]
+            };
+
+            Object.entries(quartiersData).forEach(([nom, data]) => {
+                const coords = coordsMap[nom];
+                if (coords) {
+                    let markerColor = '#10b981';
+                    if (data.prixMoyen > 450000) markerColor = '#E2725B';
+                    else if (data.prixMoyen > 350000) markerColor = '#135bec';
+                    else if (data.prixMoyen > 200000) markerColor = '#f59e0b';
+
+                    L.circleMarker(coords, {
+                        radius: 6,
+                        fillColor: markerColor,
+                        color: '#fff',
+                        weight: 2,
+                        fillOpacity: 0.8
+                    }).addTo(miniMap).bindPopup(`${nom}<br>${data.prixMoyen.toLocaleString()} FCFA`);
+                }
+            });
+
+            // ========================================
+            // FILTRES
+            // ========================================
+            document.querySelectorAll('.period-filter').forEach(btn => {
+                btn.addEventListener('click', function() {
+                    document.querySelectorAll('.period-filter').forEach(b => b.classList.remove('active'));
+                    this.classList.add('active');
+
+                    const period = parseInt(this.dataset.period);
+                    const newData = generateHistoricalData(period, stats.prixMoyen, 0.15);
+
+                    priceChart.data.labels = newData.map(d => d.date.toLocaleDateString('fr-FR', { day: '2-digit', month: 'short' }));
+                    priceChart.data.datasets[0].data = newData.map(d => d.price);
+                    priceChart.update();
+                });
+            });
+
+            document.getElementById('price-chart-quartier').addEventListener('change', function() {
+                const quartier = this.value;
+                if (quartier === 'all') {
+                    priceChart.data.datasets[0].data = generateHistoricalData(30, stats.prixMoyen, 0.15).map(d => d.price);
+                } else {
+                    const basePrice = quartiersData[quartier]?.prixMoyen || stats.prixMoyen;
+                    priceChart.data.datasets[0].data = generateHistoricalData(30, basePrice, 0.1).map(d => d.price);
+                }
+                priceChart.update();
+            });
+        });
+
+        // Animation des stats
+        function animateValue(element, start, end, duration) {
+            const range = end - start;
+            const increment = range / (duration / 16);
+            let current = start;
+            const timer = setInterval(() => {
+                current += increment;
+                if (current >= end) {
+                    current = end;
+                    clearInterval(timer);
+                }
+                element.textContent = Math.round(current).toLocaleString() +
+                    (element.id === 'avg-price' ? ' FCFA' : '');
+            }, 16);
+        }
+
+        setTimeout(() => {
+            const stats = calculateStats();
+            animateValue(document.getElementById('avg-price'), 300000, stats.prixMoyen, 1000);
+            animateValue(document.getElementById('total-ads'), 2000, stats.totalAnnonces, 1000);
+        }, 500);
+    </script>
+</body>
+</html>
