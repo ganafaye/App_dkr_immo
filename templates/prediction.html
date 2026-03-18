@@ -2,7 +2,7 @@
 <html lang="fr">
 <head>
     <meta charset="utf-8">
-    <meta content="width=device-width, initial-scale=1.0" name="viewport">
+    <meta content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=yes" name="viewport">
     <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
     <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet">
@@ -88,10 +88,16 @@
 
         /* Style pour la carte */
         #map {
-            height: 400px;
+            height: 350px;
             width: 100%;
             border-radius: 1rem;
             z-index: 1;
+        }
+
+        @media (min-width: 768px) {
+            #map {
+                height: 400px;
+            }
         }
 
         .leaflet-popup-content-wrapper {
@@ -196,7 +202,7 @@
         .map-legend {
             display: flex;
             flex-wrap: wrap;
-            gap: 1rem;
+            gap: 0.75rem;
             padding: 0.5rem;
             background: rgba(255, 255, 255, 0.1);
             border-radius: 0.5rem;
@@ -266,81 +272,195 @@
             transform: translateX(5px);
             background: rgba(19, 91, 236, 0.05) !important;
         }
+
+        /* ===== AJOUTS RESPONSIVES ===== */
+        /* Ajustements pour mobile et tablette */
+        @media (max-width: 640px) {
+            h1 {
+                font-size: 2rem !important;
+            }
+            .text-4xl {
+                font-size: 2rem !important;
+            }
+            .text-5xl {
+                font-size: 2.5rem !important;
+            }
+            .px-6 {
+                padding-left: 1rem !important;
+                padding-right: 1rem !important;
+            }
+            .py-12 {
+                padding-top: 2rem !important;
+                padding-bottom: 2rem !important;
+            }
+            .p-8 {
+                padding: 1.5rem !important;
+            }
+            .p-6 {
+                padding: 1.25rem !important;
+            }
+            .gap-8 {
+                gap: 1.5rem !important;
+            }
+            .mb-12 {
+                margin-bottom: 2rem !important;
+            }
+            .filter-btn {
+                padding-left: 0.5rem !important;
+                padding-right: 0.5rem !important;
+                font-size: 0.7rem !important;
+            }
+            .mode-btn span:last-child {
+                display: none;
+            }
+            .mode-btn {
+                gap: 0.25rem !important;
+            }
+            #map-filters {
+                gap: 0.25rem !important;
+            }
+            .sticky {
+                position: relative;
+                top: 0;
+            }
+        }
+
+        @media (min-width: 641px) and (max-width: 768px) {
+            .grid {
+                gap: 1.5rem !important;
+            }
+            .mode-btn {
+                font-size: 0.8rem !important;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .lg\:col-span-1, .lg\:col-span-2 {
+                grid-column: span 1 / span 1 !important;
+            }
+        }
+
+        /* Menu mobile */
+        #mobile-menu {
+            transition: transform 0.3s ease-in-out;
+            transform: translateX(-100%);
+        }
+
+        #mobile-menu.open {
+            transform: translateX(0);
+        }
+
+        /* Amélioration de l'affichage des chips */
+        .quartier-chip {
+            white-space: nowrap;
+            font-size: 0.7rem;
+            padding: 0.25rem 0.75rem;
+        }
+        @media (min-width: 640px) {
+            .quartier-chip {
+                font-size: 0.75rem;
+                padding: 0.375rem 1rem;
+            }
+        }
     </style>
 </head>
 <body class="bg-background-light dark:bg-background-dark font-display text-slate-900 dark:text-slate-100 transition-colors duration-300">
     <div class="relative flex min-h-screen w-full flex-col overflow-x-hidden">
-        <!-- Decorative Background Elements -->
+        <!-- Decorative Background Elements - rendus plus petits sur mobile -->
         <div class="fixed inset-0 overflow-hidden pointer-events-none">
-            <div class="absolute top-20 left-10 w-96 h-96 bg-terracotta/10 rounded-full blur-3xl animate-pulse-slow"></div>
-            <div class="absolute bottom-20 right-10 w-[500px] h-[500px] bg-primary/10 rounded-full blur-3xl animate-float"></div>
-            <div class="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-[800px] h-[800px] bg-atlantic/5 rounded-full blur-3xl"></div>
+            <div class="absolute top-20 left-10 w-48 sm:w-64 lg:w-96 h-48 sm:h-64 lg:h-96 bg-terracotta/10 rounded-full blur-3xl animate-pulse-slow"></div>
+            <div class="absolute bottom-20 right-10 w-64 sm:w-96 lg:w-[500px] h-64 sm:h-96 lg:h-[500px] bg-primary/10 rounded-full blur-3xl animate-float"></div>
+            <div class="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-[600px] sm:w-[800px] h-[600px] sm:h-[800px] bg-atlantic/5 rounded-full blur-3xl"></div>
         </div>
 
-        <!-- Navigation Bar -->
-        <header class="sticky top-0 z-50 w-full border-b border-slate-200/60 dark:border-slate-800/60 bg-white/80 dark:bg-background-dark/80 backdrop-blur-md px-6 md:px-20 py-4">
+        <!-- Navigation Bar - avec menu mobile -->
+        <header class="sticky top-0 z-50 w-full border-b border-slate-200/60 dark:border-slate-800/60 bg-white/80 dark:bg-background-dark/80 backdrop-blur-md px-4 sm:px-6 lg:px-20 py-3 sm:py-4">
             <div class="max-w-7xl mx-auto flex items-center justify-between">
-                <div class="flex items-center gap-3">
+                <div class="flex items-center gap-2 sm:gap-3">
                     <div class="text-primary">
-                        <span class="material-symbols-outlined text-3xl font-bold">domain</span>
+                        <span class="material-symbols-outlined text-2xl sm:text-3xl font-bold">domain</span>
                     </div>
-                    <h2 class="text-slate-900 dark:text-slate-50 text-xl font-bold tracking-tight">Dakar Immo AI Predictor</h2>
+                    <h2 class="text-slate-900 dark:text-slate-50 text-base sm:text-lg md:text-xl font-bold tracking-tight whitespace-nowrap">Dakar Immo AI Predictor</h2>
                 </div>
-                <div class="hidden md:flex flex-1 justify-end items-center gap-10">
-                    <nav class="flex items-center gap-8">
+
+                <!-- Desktop Navigation (caché sur mobile) -->
+                <div class="hidden md:flex flex-1 justify-end items-center gap-6 lg:gap-10">
+                    <nav class="flex items-center gap-4 lg:gap-8">
                         <a class="text-slate-600 dark:text-slate-400 hover:text-primary dark:hover:text-primary transition-colors text-sm font-semibold" href="/">Home</a>
                         <a class="text-primary font-semibold text-sm border-b-2 border-primary pb-1" href="/prediction">Prédiction</a>
                         <a class="text-slate-600 dark:text-slate-400 hover:text-primary dark:hover:text-primary transition-colors text-sm font-semibold" href="/dashboard">Dashboard</a>
                         <a class="text-slate-600 dark:text-slate-400 hover:text-primary dark:hover:text-primary transition-colors text-sm font-semibold" href="/about">About</a>
                     </nav>
                 </div>
+
+                <!-- Mobile Menu Button -->
                 <div class="md:hidden">
-                    <span class="material-symbols-outlined text-slate-900 dark:text-slate-100">menu</span>
+                    <button id="mobile-menu-btn" class="p-2 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-lg transition-colors">
+                        <span class="material-symbols-outlined text-slate-900 dark:text-slate-100">menu</span>
+                    </button>
                 </div>
             </div>
+
+            <!-- Mobile Menu Dropdown -->
+            <div id="mobile-menu" class="fixed top-0 left-0 h-full w-64 bg-white dark:bg-slate-900 shadow-2xl z-50 p-6 transform transition-transform duration-300 ease-in-out -translate-x-full md:hidden">
+                <div class="flex justify-between items-center mb-8">
+                    <span class="text-lg font-bold text-primary">Menu</span>
+                    <button id="close-menu-btn" class="p-2 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-lg">
+                        <span class="material-symbols-outlined">close</span>
+                    </button>
+                </div>
+                <nav class="flex flex-col gap-4">
+                    <a class="text-slate-600 dark:text-slate-400 hover:text-primary text-lg font-semibold py-2" href="/">Home</a>
+                    <a class="text-primary font-semibold text-lg py-2" href="/prediction">Prédiction</a>
+                    <a class="text-slate-600 dark:text-slate-400 hover:text-primary text-lg font-semibold py-2" href="/dashboard">Dashboard</a>
+                    <a class="text-slate-600 dark:text-slate-400 hover:text-primary text-lg font-semibold py-2" href="/about">About</a>
+                </nav>
+            </div>
+            <!-- Overlay pour fermer le menu -->
+            <div id="menu-overlay" class="fixed inset-0 bg-black/50 z-40 hidden md:hidden"></div>
         </header>
 
-        <main class="flex-1 px-4 py-12 md:py-16 relative">
+        <main class="flex-1 px-3 sm:px-4 py-8 sm:py-12 md:py-16 relative">
             <div class="max-w-7xl mx-auto">
                 <!-- Page Header -->
-                <div class="text-center mb-12 animate-slide-up">
-                    <span class="inline-block px-4 py-2 bg-primary/10 text-primary rounded-full text-sm font-semibold mb-4">
-                        <span class="material-symbols-outlined text-sm align-middle mr-1">calculate</span>
+                <div class="text-center mb-8 sm:mb-12 animate-slide-up">
+                    <span class="inline-block px-3 py-1.5 sm:px-4 sm:py-2 bg-primary/10 text-primary rounded-full text-xs sm:text-sm font-semibold mb-3 sm:mb-4">
+                        <span class="material-symbols-outlined text-xs sm:text-sm align-middle mr-1">calculate</span>
                         Calculateur Intelligent
                     </span>
-                    <h1 class="text-4xl md:text-5xl font-extrabold text-slate-900 dark:text-white mb-4">
+                    <h1 class="text-3xl sm:text-4xl md:text-5xl font-extrabold text-slate-900 dark:text-white mb-3 sm:mb-4">
                         Estimez votre <span class="text-terracotta">loyer</span> en
                         <span class="relative">
                             <span class="text-primary">quelques clics</span>
                             <span class="absolute -bottom-2 left-0 w-full h-1 bg-primary/30 rounded-full"></span>
                         </span>
                     </h1>
-                    <p class="text-slate-600 dark:text-slate-400 text-lg max-w-2xl mx-auto">
+                    <p class="text-sm sm:text-base md:text-lg text-slate-600 dark:text-slate-400 max-w-2xl mx-auto px-3 sm:px-4">
                         Remplissez les caractéristiques de votre futur logement et obtenez une estimation précise basée sur notre modèle Random Forest.
                     </p>
                 </div>
 
                 <!-- Section Carte Interactive -->
-                <div class="mb-12">
-                    <div class="glass-effect rounded-3xl shadow-2xl p-6">
-                        <div class="flex items-center justify-between mb-4">
-                            <h2 class="text-2xl font-bold text-slate-900 dark:text-white flex items-center gap-2">
+                <div class="mb-8 sm:mb-12">
+                    <div class="glass-effect rounded-2xl sm:rounded-3xl shadow-2xl p-4 sm:p-6">
+                        <div class="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-2 sm:gap-3 mb-4">
+                            <h2 class="text-xl sm:text-2xl font-bold text-slate-900 dark:text-white flex items-center gap-2">
                                 <span class="material-symbols-outlined text-primary">map</span>
                                 Carte interactive des quartiers
                             </h2>
-                            <div class="flex items-center gap-2 text-sm">
-                                <span class="flex items-center gap-1"><span class="w-3 h-3 rounded-full bg-primary"></span> Prix moyen</span>
-                                <span class="flex items-center gap-1"><span class="w-3 h-3 rounded-full bg-terracotta"></span> Sélectionné</span>
+                            <div class="flex items-center gap-2 text-xs sm:text-sm">
+                                <span class="flex items-center gap-1"><span class="w-2 h-2 sm:w-3 sm:h-3 rounded-full bg-primary"></span> Prix moyen</span>
+                                <span class="flex items-center gap-1"><span class="w-2 h-2 sm:w-3 sm:h-3 rounded-full bg-terracotta"></span> Sélectionné</span>
                             </div>
                         </div>
 
                         <!-- Filtres de prix pour la carte -->
-                        <div id="map-filters" class="flex flex-wrap gap-2 mb-4">
-                            <span class="text-slate-500 dark:text-slate-400 text-sm font-medium self-center">Filtrer :</span>
-                            <button class="filter-btn active px-3 py-1 rounded-full border border-primary text-primary hover:bg-primary hover:text-white transition-all text-xs font-semibold" data-filter="all">Tous</button>
-                            <button class="filter-btn px-3 py-1 rounded-full border border-slate-300 dark:border-slate-700 hover:border-primary hover:text-primary transition-all text-xs font-semibold" data-filter="low">Moins de 200k</button>
-                            <button class="filter-btn px-3 py-1 rounded-full border border-slate-300 dark:border-slate-700 hover:border-primary hover:text-primary transition-all text-xs font-semibold" data-filter="medium">200k - 350k</button>
-                            <button class="filter-btn px-3 py-1 rounded-full border border-slate-300 dark:border-slate-700 hover:border-primary hover:text-primary transition-all text-xs font-semibold" data-filter="high">Plus de 350k</button>
+                        <div id="map-filters" class="flex flex-wrap gap-1 sm:gap-2 mb-4">
+                            <span class="text-slate-500 dark:text-slate-400 text-xs sm:text-sm font-medium self-center">Filtrer :</span>
+                            <button class="filter-btn active px-2 sm:px-3 py-1 rounded-full border border-primary text-primary hover:bg-primary hover:text-white transition-all text-xs font-semibold" data-filter="all">Tous</button>
+                            <button class="filter-btn px-2 sm:px-3 py-1 rounded-full border border-slate-300 dark:border-slate-700 hover:border-primary hover:text-primary transition-all text-xs font-semibold" data-filter="low">Moins de 200k</button>
+                            <button class="filter-btn px-2 sm:px-3 py-1 rounded-full border border-slate-300 dark:border-slate-700 hover:border-primary hover:text-primary transition-all text-xs font-semibold" data-filter="medium">200k - 350k</button>
+                            <button class="filter-btn px-2 sm:px-3 py-1 rounded-full border border-slate-300 dark:border-slate-700 hover:border-primary hover:text-primary transition-all text-xs font-semibold" data-filter="high">Plus de 350k</button>
                         </div>
 
                         <!-- Conteneur de la carte -->
@@ -356,115 +476,115 @@
                     </div>
                 </div>
 
-                <div class="grid lg:grid-cols-3 gap-8">
+                <div class="grid grid-cols-1 lg:grid-cols-3 gap-6 lg:gap-8">
                     <!-- Formulaire de prédiction -->
                     <div class="lg:col-span-2">
-                        <div class="glass-effect rounded-3xl shadow-2xl p-8 card-hover">
-                            <h2 class="text-2xl font-bold text-slate-900 dark:text-white mb-6 flex items-center gap-2">
+                        <div class="glass-effect rounded-2xl sm:rounded-3xl shadow-2xl p-6 sm:p-8 card-hover">
+                            <h2 class="text-xl sm:text-2xl font-bold text-slate-900 dark:text-white mb-6 flex items-center gap-2">
                                 <span class="material-symbols-outlined text-primary">home_work</span>
                                 Caractéristiques du bien
                             </h2>
 
                             <!-- Formulaire avec méthode POST vers /predict -->
-                            <form id="prediction-form" method="post" action="/predict" class="space-y-6">
+                            <form id="prediction-form" method="post" action="/predict" class="space-y-5 sm:space-y-6">
                                 <!-- Quartier avec recherche et autocomplete -->
                                 <div class="space-y-2 relative">
-                                    <label class="text-sm font-semibold text-slate-700 dark:text-slate-300 flex items-center gap-1">
-                                        <span class="material-symbols-outlined text-primary text-lg">location_on</span>
+                                    <label class="text-xs sm:text-sm font-semibold text-slate-700 dark:text-slate-300 flex items-center gap-1">
+                                        <span class="material-symbols-outlined text-primary text-base sm:text-lg">location_on</span>
                                         Quartier <span class="text-terracotta">*</span>
                                     </label>
                                     <div class="relative">
                                         <input type="text" id="quartier" name="quartier"
-                                            class="w-full px-4 py-3 pl-12 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-900 dark:text-white focus:border-primary focus:ring-2 focus:ring-primary/20 transition-all input-transition"
+                                            class="w-full px-3 sm:px-4 py-2.5 sm:py-3 pl-10 sm:pl-12 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-sm sm:text-base text-slate-900 dark:text-white focus:border-primary focus:ring-2 focus:ring-primary/20 transition-all input-transition"
                                             placeholder="Sélectionnez un quartier..." required autocomplete="off">
-                                        <span class="material-symbols-outlined absolute left-4 top-1/2 -translate-y-1/2 text-slate-400">search</span>
+                                        <span class="material-symbols-outlined absolute left-3 sm:left-4 top-1/2 -translate-y-1/2 text-slate-400 text-lg sm:text-xl">search</span>
                                     </div>
 
                                     <!-- Suggestions dropdown -->
                                     <div id="quartier-suggestions" class="absolute z-50 w-full bg-white dark:bg-slate-800 rounded-xl shadow-xl border border-slate-200 dark:border-slate-700 hidden"></div>
 
                                     <!-- Quick quartiers chips -->
-                                    <div id="quartier-chips" class="flex flex-wrap gap-2 mt-3">
+                                    <div id="quartier-chips" class="flex flex-wrap gap-1.5 sm:gap-2 mt-2 sm:mt-3">
                                         <!-- Les chips seront chargées dynamiquement -->
                                     </div>
                                 </div>
 
-                                <div class="grid md:grid-cols-2 gap-6">
+                                <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-6">
                                     <!-- Surface -->
                                     <div class="space-y-2">
-                                        <label class="text-sm font-semibold text-slate-700 dark:text-slate-300 flex items-center gap-1">
-                                            <span class="material-symbols-outlined text-primary text-lg">square_foot</span>
+                                        <label class="text-xs sm:text-sm font-semibold text-slate-700 dark:text-slate-300 flex items-center gap-1">
+                                            <span class="material-symbols-outlined text-primary text-base sm:text-lg">square_foot</span>
                                             Surface (m²) <span class="text-terracotta">*</span>
                                         </label>
                                         <div class="relative">
                                             <input type="number" id="surface" name="surface" min="15" max="1000" value="100" required
-                                                class="w-full px-4 py-3 pl-12 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-900 dark:text-white focus:border-primary focus:ring-2 focus:ring-primary/20 transition-all input-transition">
-                                            <span class="material-symbols-outlined absolute left-4 top-1/2 -translate-y-1/2 text-slate-400">straighten</span>
+                                                class="w-full px-3 sm:px-4 py-2.5 sm:py-3 pl-10 sm:pl-12 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-sm sm:text-base text-slate-900 dark:text-white focus:border-primary focus:ring-2 focus:ring-primary/20 transition-all input-transition">
+                                            <span class="material-symbols-outlined absolute left-3 sm:left-4 top-1/2 -translate-y-1/2 text-slate-400 text-lg sm:text-xl">straighten</span>
                                         </div>
-                                        <input type="range" id="surface-range" min="15" max="1000" value="100" class="w-full h-2 bg-slate-200 rounded-lg appearance-none cursor-pointer dark:bg-slate-700">
+                                        <input type="range" id="surface-range" min="15" max="1000" value="100" class="w-full h-1.5 sm:h-2 bg-slate-200 rounded-lg appearance-none cursor-pointer dark:bg-slate-700">
                                     </div>
 
                                     <!-- Nombre de chambres -->
                                     <div class="space-y-2">
-                                        <label class="text-sm font-semibold text-slate-700 dark:text-slate-300 flex items-center gap-1">
-                                            <span class="material-symbols-outlined text-primary text-lg">bed</span>
+                                        <label class="text-xs sm:text-sm font-semibold text-slate-700 dark:text-slate-300 flex items-center gap-1">
+                                            <span class="material-symbols-outlined text-primary text-base sm:text-lg">bed</span>
                                             Chambres
                                         </label>
-                                        <div class="flex items-center gap-3">
-                                            <button type="button" id="decrement-chambres" class="w-10 h-10 rounded-full bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 hover:bg-primary hover:text-white transition-all flex items-center justify-center">
-                                                <span class="material-symbols-outlined">remove</span>
+                                        <div class="flex items-center gap-2 sm:gap-3">
+                                            <button type="button" id="decrement-chambres" class="w-8 h-8 sm:w-10 sm:h-10 rounded-full bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 hover:bg-primary hover:text-white transition-all flex items-center justify-center">
+                                                <span class="material-symbols-outlined text-base sm:text-lg">remove</span>
                                             </button>
                                             <input type="number" id="chambres" name="chambres" min="1" max="15" value="2" required
-                                                class="w-20 text-center px-2 py-3 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-900 dark:text-white focus:border-primary focus:ring-2 focus:ring-primary/20 transition-all">
-                                            <button type="button" id="increment-chambres" class="w-10 h-10 rounded-full bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 hover:bg-primary hover:text-white transition-all flex items-center justify-center">
-                                                <span class="material-symbols-outlined">add</span>
+                                                class="w-16 sm:w-20 text-center px-1 sm:px-2 py-2 sm:py-3 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-sm sm:text-base text-slate-900 dark:text-white focus:border-primary focus:ring-2 focus:ring-primary/20 transition-all">
+                                            <button type="button" id="increment-chambres" class="w-8 h-8 sm:w-10 sm:h-10 rounded-full bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 hover:bg-primary hover:text-white transition-all flex items-center justify-center">
+                                                <span class="material-symbols-outlined text-base sm:text-lg">add</span>
                                             </button>
                                         </div>
                                     </div>
 
                                     <!-- Nombre de salles de bain -->
                                     <div class="space-y-2">
-                                        <label class="text-sm font-semibold text-slate-700 dark:text-slate-300 flex items-center gap-1">
-                                            <span class="material-symbols-outlined text-primary text-lg">bathroom</span>
+                                        <label class="text-xs sm:text-sm font-semibold text-slate-700 dark:text-slate-300 flex items-center gap-1">
+                                            <span class="material-symbols-outlined text-primary text-base sm:text-lg">bathroom</span>
                                             Salles de bain
                                         </label>
-                                        <div class="flex items-center gap-3">
-                                            <button type="button" id="decrement-sdb" class="w-10 h-10 rounded-full bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 hover:bg-primary hover:text-white transition-all flex items-center justify-center">
-                                                <span class="material-symbols-outlined">remove</span>
+                                        <div class="flex items-center gap-2 sm:gap-3">
+                                            <button type="button" id="decrement-sdb" class="w-8 h-8 sm:w-10 sm:h-10 rounded-full bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 hover:bg-primary hover:text-white transition-all flex items-center justify-center">
+                                                <span class="material-symbols-outlined text-base sm:text-lg">remove</span>
                                             </button>
                                             <input type="number" id="sdb" name="sdb" min="1" max="5" value="1" required
-                                                class="w-20 text-center px-2 py-3 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-900 dark:text-white focus:border-primary focus:ring-2 focus:ring-primary/20 transition-all">
-                                            <button type="button" id="increment-sdb" class="w-10 h-10 rounded-full bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 hover:bg-primary hover:text-white transition-all flex items-center justify-center">
-                                                <span class="material-symbols-outlined">add</span>
+                                                class="w-16 sm:w-20 text-center px-1 sm:px-2 py-2 sm:py-3 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-sm sm:text-base text-slate-900 dark:text-white focus:border-primary focus:ring-2 focus:ring-primary/20 transition-all">
+                                            <button type="button" id="increment-sdb" class="w-8 h-8 sm:w-10 sm:h-10 rounded-full bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 hover:bg-primary hover:text-white transition-all flex items-center justify-center">
+                                                <span class="material-symbols-outlined text-base sm:text-lg">add</span>
                                             </button>
                                         </div>
                                     </div>
 
                                     <!-- Options de standing (Checkboxes) -->
-                                    <div class="space-y-2 col-span-2 md:col-span-1">
-                                        <label class="text-sm font-semibold text-slate-700 dark:text-slate-300 flex items-center gap-1">
-                                            <span class="material-symbols-outlined text-primary text-lg">star</span>
+                                    <div class="space-y-2 col-span-2 sm:col-span-1">
+                                        <label class="text-xs sm:text-sm font-semibold text-slate-700 dark:text-slate-300 flex items-center gap-1">
+                                            <span class="material-symbols-outlined text-primary text-base sm:text-lg">star</span>
                                             Options de standing
                                         </label>
-                                        <div class="flex flex-wrap gap-4">
-                                            <label class="flex items-center gap-2 p-2 rounded-lg border border-slate-200 dark:border-slate-700 cursor-pointer hover:border-primary transition-all">
+                                        <div class="flex flex-wrap gap-2 sm:gap-4">
+                                            <label class="flex items-center gap-1.5 sm:gap-2 p-1.5 sm:p-2 rounded-lg border border-slate-200 dark:border-slate-700 cursor-pointer hover:border-primary transition-all text-xs sm:text-sm">
                                                 <input type="checkbox" name="meuble" value="true" class="rounded text-primary focus:ring-primary/20">
-                                                <span class="text-sm">Meublé</span>
+                                                <span>Meublé</span>
                                             </label>
-                                            <label class="flex items-center gap-2 p-2 rounded-lg border border-slate-200 dark:border-slate-700 cursor-pointer hover:border-primary transition-all">
+                                            <label class="flex items-center gap-1.5 sm:gap-2 p-1.5 sm:p-2 rounded-lg border border-slate-200 dark:border-slate-700 cursor-pointer hover:border-primary transition-all text-xs sm:text-sm">
                                                 <input type="checkbox" name="neuf" value="true" class="rounded text-primary focus:ring-primary/20">
-                                                <span class="text-sm">Neuf</span>
+                                                <span>Neuf</span>
                                             </label>
-                                            <label class="flex items-center gap-2 p-2 rounded-lg border border-slate-200 dark:border-slate-700 cursor-pointer hover:border-primary transition-all">
+                                            <label class="flex items-center gap-1.5 sm:gap-2 p-1.5 sm:p-2 rounded-lg border border-slate-200 dark:border-slate-700 cursor-pointer hover:border-primary transition-all text-xs sm:text-sm">
                                                 <input type="checkbox" name="vue_mer" value="true" class="rounded text-primary focus:ring-primary/20">
-                                                <span class="text-sm">Vue Mer</span>
+                                                <span>Vue Mer</span>
                                             </label>
                                         </div>
                                     </div>
                                 </div>
 
                                 <!-- Bouton de soumission -->
-                                <button type="submit" id="predict-submit" class="w-full bg-gradient-to-r from-primary to-terracotta hover:from-primary/90 hover:to-terracotta/90 text-white font-bold py-4 px-6 rounded-xl transition-all transform hover:scale-[1.02] active:scale-[0.98] shadow-lg shadow-primary/30 flex items-center justify-center gap-2 text-lg">
+                                <button type="submit" id="predict-submit" class="w-full bg-gradient-to-r from-primary to-terracotta hover:from-primary/90 hover:to-terracotta/90 text-white font-bold py-3 sm:py-4 px-4 sm:px-6 rounded-xl transition-all transform hover:scale-[1.02] active:scale-[0.98] shadow-lg shadow-primary/30 flex items-center justify-center gap-2 text-base sm:text-lg">
                                     <span class="material-symbols-outlined">calculate</span>
                                     Estimer le loyer
                                 </button>
@@ -474,16 +594,16 @@
 
                     <!-- Sidebar avec résultats et infos (DESIGN FUSION OPTION 3) -->
                     <div class="lg:col-span-1">
-                        <div id="results-card" class="glass-effect rounded-3xl shadow-2xl p-6 card-hover sticky top-24">
+                        <div id="results-card" class="glass-effect rounded-2xl sm:rounded-3xl shadow-2xl p-4 sm:p-6 card-hover sticky lg:top-24">
 
                             <!-- Sélecteur de mode avec icônes -->
-                            <div class="flex bg-slate-100 dark:bg-slate-800 rounded-xl p-1 mb-6">
-                                <button id="mode-estimation" class="mode-btn active flex-1 flex items-center justify-center gap-2 py-2 px-3 rounded-lg text-sm font-semibold transition-all">
-                                    <span class="material-symbols-outlined">insights</span>
+                            <div class="flex bg-slate-100 dark:bg-slate-800 rounded-xl p-1 mb-4 sm:mb-6">
+                                <button id="mode-estimation" class="mode-btn active flex-1 flex items-center justify-center gap-1 sm:gap-2 py-1.5 sm:py-2 px-1 sm:px-3 rounded-lg text-xs sm:text-sm font-semibold transition-all">
+                                    <span class="material-symbols-outlined text-sm sm:text-base">insights</span>
                                     <span>Estimation</span>
                                 </button>
-                                <button id="mode-budget" class="mode-btn flex-1 flex items-center justify-center gap-2 py-2 px-3 rounded-lg text-sm font-semibold text-slate-500 hover:text-primary transition-all">
-                                    <span class="material-symbols-outlined">real_estate_agent</span>
+                                <button id="mode-budget" class="mode-btn flex-1 flex items-center justify-center gap-1 sm:gap-2 py-1.5 sm:py-2 px-1 sm:px-3 rounded-lg text-xs sm:text-sm font-semibold text-slate-500 hover:text-primary transition-all">
+                                    <span class="material-symbols-outlined text-sm sm:text-base">real_estate_agent</span>
                                     <span>Budget</span>
                                 </button>
                             </div>
@@ -491,11 +611,11 @@
                             <!-- Conteneur des vues -->
                             <div id="mode-container">
                                 <!-- VUE ESTIMATION -->
-                                <div id="view-estimation" class="mode-view space-y-6">
+                                <div id="view-estimation" class="mode-view space-y-4 sm:space-y-6">
                                     <!-- Prix estimé -->
-                                    <div class="p-6 bg-gradient-to-br from-primary/10 to-terracotta/10 rounded-2xl border border-primary/20">
-                                        <p class="text-sm text-slate-600 dark:text-slate-400 mb-1">Loyer mensuel estimé</p>
-                                        <p id="estimated-price" class="text-4xl font-extrabold text-primary">
+                                    <div class="p-4 sm:p-6 bg-gradient-to-br from-primary/10 to-terracotta/10 rounded-xl sm:rounded-2xl border border-primary/20">
+                                        <p class="text-xs sm:text-sm text-slate-600 dark:text-slate-400 mb-1">Loyer mensuel estimé</p>
+                                        <p id="estimated-price" class="text-2xl sm:text-3xl lg:text-4xl font-extrabold text-primary break-words">
                                             {% if resultat %}
                                                 {{ resultat }} FCFA
                                             {% else %}
@@ -506,82 +626,81 @@
                                             {% if resultat %}
                                                 Basé sur le modèle Random Forest
                                             {% else %}
-                                                Remplissez le formulaire pour obtenir une estimation
+                                                Remplissez le formulaire
                                             {% endif %}
                                         </p>
                                     </div>
 
                                     <!-- Détails de l'estimation -->
                                     <div class="space-y-2">
-                                        <div class="flex justify-between py-2 border-b border-slate-200 dark:border-slate-700">
-                                            <span class="text-sm text-slate-600 dark:text-slate-400">Prix au m²</span>
+                                        <div class="flex justify-between py-2 border-b border-slate-200 dark:border-slate-700 text-xs sm:text-sm">
+                                            <span class="text-slate-600 dark:text-slate-400">Prix au m²</span>
                                             <span id="price-per-m2" class="font-semibold">-</span>
                                         </div>
-                                        <div class="flex justify-between py-2 border-b border-slate-200 dark:border-slate-700">
-                                            <span class="text-sm text-slate-600 dark:text-slate-400">Confiance du modèle</span>
+                                        <div class="flex justify-between py-2 border-b border-slate-200 dark:border-slate-700 text-xs sm:text-sm">
+                                            <span class="text-slate-600 dark:text-slate-400">Confiance du modèle</span>
                                             <span class="text-green-600 font-semibold">85%</span>
                                         </div>
                                     </div>
 
                                     <!-- Badge du modèle -->
-                                    <div class="mt-4 p-3 bg-slate-100 dark:bg-slate-800 rounded-lg">
+                                    <div class="mt-4 p-2 sm:p-3 bg-slate-100 dark:bg-slate-800 rounded-lg">
                                         <p class="text-xs text-slate-500 flex items-center gap-1">
                                             <span class="material-symbols-outlined text-sm">info</span>
-                                            Système d'IA Prédictif – Immobilier Dakar  • Mars 2026
+                                            Système d'IA Prédictif – Immobilier Dakar • Mars 2026
                                         </p>
                                     </div>
                                 </div>
 
                                 <!-- VUE BUDGET -->
-                                <!-- VUE BUDGET - Version corrigée -->
-<div id="view-budget" class="mode-view hidden space-y-4">
-    <!-- Input budget avec design amélioré -->
-    <div>
-        <label class="text-sm font-semibold text-slate-700 dark:text-slate-300 flex items-center gap-1 mb-3">
-            <span class="material-symbols-outlined text-primary">account_balance_wallet</span>
-            Mon budget mensuel
-            <span class="tooltip">ⓘ
-                <span class="tooltiptext">Indiquez le loyer maximum que vous pouvez payer</span>
-            </span>
-        </label>
-        <div class="flex items-center gap-3">
-            <input type="range" id="budget-range" min="50000" max="1000000" step="10000" value="300000"
-                   class="flex-1 h-2 bg-slate-200 rounded-lg appearance-none cursor-pointer accent-primary">
-            <div class="flex items-center bg-white dark:bg-slate-800 rounded-lg border border-slate-200 dark:border-slate-700 px-3 py-1 min-w-[120px]">
-                <input type="number" id="budget" min="50000" max="1000000" value="300000"
-                       class="w-20 text-right text-lg font-bold text-primary bg-transparent border-none focus:outline-none"
-                       step="10000">
-                <span class="text-sm text-slate-500 ml-1">FCFA</span>
-            </div>
-        </div>
-        <div class="flex justify-between text-xs text-slate-500 mt-1 px-1">
-            <span>50k</span>
-            <span>300k</span>
-            <span>600k</span>
-            <span>1M</span>
-        </div>
-    </div>
+                                <div id="view-budget" class="mode-view hidden space-y-4">
+                                    <!-- Input budget avec design amélioré -->
+                                    <div>
+                                        <label class="text-xs sm:text-sm font-semibold text-slate-700 dark:text-slate-300 flex items-center gap-1 mb-2 sm:mb-3">
+                                            <span class="material-symbols-outlined text-primary text-base sm:text-lg">account_balance_wallet</span>
+                                            Mon budget mensuel
+                                            <span class="tooltip">ⓘ
+                                                <span class="tooltiptext">Indiquez le loyer maximum que vous pouvez payer</span>
+                                            </span>
+                                        </label>
+                                        <div class="flex items-center gap-2 sm:gap-3">
+                                            <input type="range" id="budget-range" min="50000" max="1000000" step="10000" value="300000"
+                                                   class="flex-1 h-1.5 sm:h-2 bg-slate-200 rounded-lg appearance-none cursor-pointer accent-primary">
+                                            <div class="flex items-center bg-white dark:bg-slate-800 rounded-lg border border-slate-200 dark:border-slate-700 px-2 sm:px-3 py-1 min-w-[100px] sm:min-w-[120px]">
+                                                <input type="number" id="budget" min="50000" max="1000000" value="300000"
+                                                       class="w-16 sm:w-20 text-right text-base sm:text-lg font-bold text-primary bg-transparent border-none focus:outline-none"
+                                                       step="10000">
+                                                <span class="text-xs sm:text-sm text-slate-500 ml-1">FCFA</span>
+                                            </div>
+                                        </div>
+                                        <div class="flex justify-between text-xs text-slate-500 mt-1 px-1">
+                                            <span>50k</span>
+                                            <span>300k</span>
+                                            <span>600k</span>
+                                            <span>1M</span>
+                                        </div>
+                                    </div>
 
-    <!-- Bouton de recherche amélioré -->
-    <button id="suggest-quarters-btn"
-            class="w-full bg-gradient-to-r from-primary to-terracotta hover:from-primary/90 hover:to-terracotta/90 text-white font-bold py-3 rounded-xl transition-all transform hover:scale-[1.02] active:scale-[0.98] shadow-lg shadow-primary/30 flex items-center justify-center gap-2">
-        <span class="material-symbols-outlined">search</span>
-        Trouver mon quartier idéal
-    </button>
+                                    <!-- Bouton de recherche amélioré -->
+                                    <button id="suggest-quarters-btn"
+                                            class="w-full bg-gradient-to-r from-primary to-terracotta hover:from-primary/90 hover:to-terracotta/90 text-white font-bold py-2.5 sm:py-3 rounded-xl transition-all transform hover:scale-[1.02] active:scale-[0.98] shadow-lg shadow-primary/30 flex items-center justify-center gap-2 text-sm sm:text-base">
+                                        <span class="material-symbols-outlined">search</span>
+                                        Trouver mon quartier idéal
+                                    </button>
 
-    <!-- Liste des suggestions avec design amélioré -->
-    <div id="budget-suggestions" class="space-y-2 max-h-[400px] overflow-y-auto pr-1">
-        <!-- État vide amélioré -->
-        <div class="text-center text-slate-500 py-8 animate-fade-in">
-            <span class="material-symbols-outlined text-5xl mb-3 text-primary/30">travel_explore</span>
-            <p class="text-sm font-medium">Aucune suggestion pour le moment</p>
-            <p class="text-xs mt-1">Entrez votre budget et cliquez sur "Trouver"</p>
-        </div>
-    </div>
+                                    <!-- Liste des suggestions avec design amélioré -->
+                                    <div id="budget-suggestions" class="space-y-2 max-h-[300px] sm:max-h-[400px] overflow-y-auto pr-1">
+                                        <!-- État vide amélioré -->
+                                        <div class="text-center text-slate-500 py-6 sm:py-8 animate-fade-in">
+                                            <span class="material-symbols-outlined text-4xl sm:text-5xl mb-2 sm:mb-3 text-primary/30">travel_explore</span>
+                                            <p class="text-sm font-medium">Aucune suggestion</p>
+                                            <p class="text-xs mt-1">Entrez votre budget et cliquez sur "Trouver"</p>
+                                        </div>
+                                    </div>
 
-    <!-- Résumé du budget -->
-    <p id="budget-summary" class="text-xs text-slate-500 mt-2 text-center hidden"></p>
-</div>
+                                    <!-- Résumé du budget -->
+                                    <p id="budget-summary" class="text-xs text-slate-500 mt-2 text-center hidden"></p>
+                                </div>
                             </div>
                         </div>
                     </div>
@@ -590,40 +709,68 @@
         </main>
 
         <!-- Footer -->
-        <footer class="bg-background-light dark:bg-background-dark py-12 px-6 border-t border-slate-200 dark:border-slate-800">
-            <div class="max-w-7xl mx-auto flex flex-col md:flex-row justify-between items-center gap-8">
-                <div class="flex items-center gap-3">
-                    <span class="material-symbols-outlined text-primary text-2xl">domain</span>
-                    <span class="text-slate-900 dark:text-slate-100 font-bold">Dakar Rent Predictor</span>
+        <footer class="bg-background-light dark:bg-background-dark py-8 sm:py-12 px-4 sm:px-6 border-t border-slate-200 dark:border-slate-800">
+            <div class="max-w-7xl mx-auto flex flex-col md:flex-row justify-between items-center gap-6 sm:gap-8">
+                <div class="flex items-center gap-2 sm:gap-3">
+                    <span class="material-symbols-outlined text-primary text-xl sm:text-2xl">domain</span>
+                    <span class="text-slate-900 dark:text-slate-100 font-bold text-base sm:text-lg">Dakar Immo AI Predictor</span>
                 </div>
-                <div class="flex gap-8 text-sm text-slate-500 dark:text-slate-400 font-medium">
+                <div class="flex flex-wrap justify-center gap-4 sm:gap-8 text-xs sm:text-sm text-slate-500 dark:text-slate-400 font-medium">
                     <a class="hover:text-primary transition-colors" href="#">Privacy Policy</a>
                     <a class="hover:text-primary transition-colors" href="#">Terms of Service</a>
                     <a class="hover:text-primary transition-colors" href="#">Contact</a>
                 </div>
-                <div class="flex gap-4">
-                    <button class="size-10 flex items-center justify-center rounded-full bg-slate-200 dark:bg-slate-800 text-slate-600 dark:text-slate-300 hover:bg-primary hover:text-white transition-all">
-                        <span class="material-symbols-outlined text-lg">public</span>
+                <div class="flex gap-3 sm:gap-4">
+                    <button class="size-8 sm:size-10 flex items-center justify-center rounded-full bg-slate-200 dark:bg-slate-800 text-slate-600 dark:text-slate-300 hover:bg-primary hover:text-white transition-all">
+                        <span class="material-symbols-outlined text-base sm:text-lg">public</span>
                     </button>
-                    <button class="size-10 flex items-center justify-center rounded-full bg-slate-200 dark:bg-slate-800 text-slate-600 dark:text-slate-300 hover:bg-primary hover:text-white transition-all">
-                        <span class="material-symbols-outlined text-lg">alternate_email</span>
+                    <button class="size-8 sm:size-10 flex items-center justify-center rounded-full bg-slate-200 dark:bg-slate-800 text-slate-600 dark:text-slate-300 hover:bg-primary hover:text-white transition-all">
+                        <span class="material-symbols-outlined text-base sm:text-lg">alternate_email</span>
                     </button>
                 </div>
             </div>
-            <div class="text-center mt-8 text-slate-400 dark:text-slate-600 text-xs">
-                © 2026 Dakar Immo AI Predictor. Tous droits réservés. Inspiré par l'élégance de la Teranga. Gana Faye
+            <div class="text-center mt-6 sm:mt-8 pt-6 sm:pt-8 border-t border-slate-100 dark:border-slate-800/50">
+                <p class="text-slate-400 dark:text-slate-600 text-xs">
+                    © 2026 Dakar Immo AI Predictor. Tous droits réservés. Inspiré par l'élégance de la Teranga. Gana Faye
+                </p>
             </div>
         </footer>
     </div>
 
     <script>
+        // ===== AJOUT POUR LE MENU MOBILE =====
+        document.addEventListener('DOMContentLoaded', function() {
+            const mobileMenuBtn = document.getElementById('mobile-menu-btn');
+            const closeMenuBtn = document.getElementById('close-menu-btn');
+            const mobileMenu = document.getElementById('mobile-menu');
+            const menuOverlay = document.getElementById('menu-overlay');
+
+            if (mobileMenuBtn && mobileMenu && menuOverlay) {
+                mobileMenuBtn.addEventListener('click', () => {
+                    mobileMenu.classList.remove('-translate-x-full');
+                    menuOverlay.classList.remove('hidden');
+                });
+
+                closeMenuBtn.addEventListener('click', () => {
+                    mobileMenu.classList.add('-translate-x-full');
+                    menuOverlay.classList.add('hidden');
+                });
+
+                menuOverlay.addEventListener('click', () => {
+                    mobileMenu.classList.add('-translate-x-full');
+                    menuOverlay.classList.add('hidden');
+                });
+            }
+        });
+
+        // ===== LE RESTE DE VOTRE CODE JS EXISTANT =====
         // Configuration
         const API_BASE_URL = '';
         let quartiersList = [];
 
         // Données complètes des quartiers de Dakar et environs
         const quartiersData = {
-            // DAKAR CENTRE
+            // ... (tout votre code existant)
             "Plateau": { prixMoyen: 350000, prixM2: 7000, coords: [14.6928, -17.4467], description: "Centre des affaires et administratif", annonces: 312, tendance: "+2%" },
             "Gueule Tapée": { prixMoyen: 280000, prixM2: 5600, coords: [14.6819, -17.4483], description: "Quartier populaire du centre", annonces: 145, tendance: "+3%" },
             "Fann-Point E": { prixMoyen: 360000, prixM2: 7200, coords: [14.6865, -17.4678], description: "Université et ambassades", annonces: 234, tendance: "+4%" },
@@ -631,49 +778,33 @@
             "Colobane": { prixMoyen: 240000, prixM2: 4800, coords: [14.7056, -17.4569], description: "Grand marché populaire", annonces: 189, tendance: "+3%" },
             "Grand Dakar": { prixMoyen: 260000, prixM2: 5200, coords: [14.7083, -17.4639], description: "Quartier résidentiel populaire", annonces: 178, tendance: "+4%" },
             "Hann Bel-Air": { prixMoyen: 270000, prixM2: 5400, coords: [14.7181, -17.4417], description: "Zone industrielle et parc forestier", annonces: 156, tendance: "+2%" },
-
-            // ALMADIES - OUEST
             "Almadies": { prixMoyen: 450000, prixM2: 9000, coords: [14.7445, -17.5315], description: "Quartier le plus chic avec vue mer", annonces: 245, tendance: "+5%" },
             "Ngor": { prixMoyen: 380000, prixM2: 7600, coords: [14.7561, -17.5150], description: "Village traditionnel et plages", annonces: 189, tendance: "+8%" },
             "Ouakam": { prixMoyen: 300000, prixM2: 6000, coords: [14.7208, -17.5008], description: "Phare des Mamelles et plages", annonces: 167, tendance: "+1%" },
             "Yoff": { prixMoyen: 280000, prixM2: 5600, coords: [14.7541, -17.4750], description: "Village traditionnel et aéroport", annonces: 221, tendance: "+4%" },
-
-            // OUEST - RÉSIDENTIEL
             "Mermoz": { prixMoyen: 340000, prixM2: 6800, coords: [14.7077, -17.4823], description: "Quartier résidentiel calme", annonces: 203, tendance: "+3%" },
             "Sacre Coeur": { prixMoyen: 330000, prixM2: 6600, coords: [14.7203, -17.4578], description: "Quartier en développement", annonces: 178, tendance: "+6%" },
             "Liberté 6": { prixMoyen: 290000, prixM2: 5800, coords: [14.7214, -17.4653], description: "Extension résidentielle", annonces: 145, tendance: "+4%" },
             "Point E": { prixMoyen: 360000, prixM2: 7200, coords: [14.6983, -17.4575], description: "Ambiance étudiante et restaurants", annonces: 145, tendance: "+3%" },
-
-            // PIKINE
             "Pikine": { prixMoyen: 180000, prixM2: 3600, coords: [14.7645, -17.3900], description: "Grande banlieue populaire", annonces: 423, tendance: "+7%" },
             "Pikine Tally Diallo": { prixMoyen: 170000, prixM2: 3400, coords: [14.7719, -17.3953], description: "Zone commerciale", annonces: 189, tendance: "+6%" },
             "Pikine Ouest": { prixMoyen: 165000, prixM2: 3300, coords: [14.7589, -17.4017], description: "Quartier résidentiel", annonces: 156, tendance: "+5%" },
             "Djida Thiaroye Kao": { prixMoyen: 155000, prixM2: 3100, coords: [14.7456, -17.3814], description: "Zone urbaine dense", annonces: 134, tendance: "+5%" },
-
-            // GUEDIAWAYE
             "Guediawaye": { prixMoyen: 165000, prixM2: 3300, coords: [14.7750, -17.4042], description: "Banlieue densément peuplée", annonces: 289, tendance: "+6%" },
             "Golf Sud": { prixMoyen: 160000, prixM2: 3200, coords: [14.7856, -17.4089], description: "Quartier résidentiel", annonces: 167, tendance: "+5%" },
             "Sam Notaire": { prixMoyen: 155000, prixM2: 3100, coords: [14.7689, -17.4147], description: "Zone en développement", annonces: 145, tendance: "+7%" },
-
-            // RUFISQUE
             "Rufisque": { prixMoyen: 140000, prixM2: 2800, coords: [14.7167, -17.2667], description: "Ville historique", annonces: 267, tendance: "+5%" },
             "Rufisque Ouest": { prixMoyen: 145000, prixM2: 2900, coords: [14.7231, -17.2789], description: "Extension moderne", annonces: 178, tendance: "+6%" },
             "Rufisque Est": { prixMoyen: 135000, prixM2: 2700, coords: [14.7103, -17.2544], description: "Zone traditionnelle", annonces: 145, tendance: "+4%" },
             "Bargny": { prixMoyen: 125000, prixM2: 2500, coords: [14.6900, -17.2300], description: "Zone côtière industrielle", annonces: 189, tendance: "+5%" },
             "Sangalkam": { prixMoyen: 130000, prixM2: 2600, coords: [14.7647, -17.2306], description: "Zone périurbaine", annonces: 134, tendance: "+8%" },
-
-            // KEUR MASSAR
             "Keur Massar": { prixMoyen: 145000, prixM2: 2900, coords: [14.7861, -17.3403], description: "Banlieue en expansion", annonces: 223, tendance: "+9%" },
             "Yeumbeul": { prixMoyen: 150000, prixM2: 3000, coords: [14.7750, -17.3583], description: "Zone résidentielle", annonces: 178, tendance: "+7%" },
             "Malika": { prixMoyen: 140000, prixM2: 2800, coords: [14.7944, -17.3250], description: "Nouvelle zone urbaine", annonces: 156, tendance: "+8%" },
-
-            // DAKAR NORD
             "Parcelles Assainies": { prixMoyen: 200000, prixM2: 4000, coords: [14.7458, -17.4397], description: "Grand ensemble résidentiel", annonces: 234, tendance: "+4%" },
             "Grand Yoff": { prixMoyen: 220000, prixM2: 4400, coords: [14.7319, -17.4425], description: "Quartier commerçant", annonces: 267, tendance: "+3%" },
             "HLM": { prixMoyen: 230000, prixM2: 4600, coords: [14.7111, -17.4492], description: "Habitations à loyer modéré", annonces: 189, tendance: "+2%" },
             "Dieuppeul": { prixMoyen: 310000, prixM2: 6200, coords: [14.7169, -17.4417], description: "Quartier résidentiel calme", annonces: 156, tendance: "+4%" },
-
-            // DAKAR SUD
             "Sicap Liberté": { prixMoyen: 280000, prixM2: 5600, coords: [14.7108, -17.4542], description: "Cité résidentielle", annonces: 178, tendance: "+3%" },
             "Fass": { prixMoyen: 240000, prixM2: 4800, coords: [14.6903, -17.4428], description: "Quartier populaire", annonces: 145, tendance: "+3%" },
             "Gare": { prixMoyen: 230000, prixM2: 4600, coords: [14.6806, -17.4394], description: "Zone de la gare ferroviaire", annonces: 123, tendance: "+2%" }
@@ -724,9 +855,9 @@
             });
 
             marker.bindPopup(`
-                <div class="p-3 min-w-[220px]">
-                    <h3 class="font-bold text-lg mb-2" style="color: #135bec;">${nom}</h3>
-                    <div class="space-y-2">
+                <div class="p-2 sm:p-3 min-w-[180px] sm:min-w-[220px]">
+                    <h3 class="font-bold text-base sm:text-lg mb-2" style="color: #135bec;">${nom}</h3>
+                    <div class="space-y-1 sm:space-y-2 text-xs sm:text-sm">
                         <p class="text-sm text-slate-600">${data.description}</p>
                         <div class="flex justify-between items-center border-t pt-2">
                             <span class="font-semibold">Prix moyen:</span>
@@ -744,7 +875,7 @@
                             <span class="font-semibold">Tendance:</span>
                             <span class="${data.tendance.includes('+') ? 'text-green-600' : 'text-red-600'}">${data.tendance}</span>
                         </div>
-                        <button onclick="selectQuartier('${nom}')" class="w-full mt-2 bg-primary text-white text-sm py-2 rounded-lg hover:bg-primary/90 transition-colors">
+                        <button onclick="selectQuartier('${nom}')" class="w-full mt-2 bg-primary text-white text-xs sm:text-sm py-1.5 sm:py-2 rounded-lg hover:bg-primary/90 transition-colors">
                             Sélectionner ce quartier
                         </button>
                     </div>
@@ -813,7 +944,7 @@
                 if (quartiersList.includes(quartier)) {
                     const chip = document.createElement('button');
                     chip.type = 'button';
-                    chip.className = 'quartier-chip px-3 py-1.5 rounded-full text-xs font-medium bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 hover:bg-primary hover:text-white transition-all';
+                    chip.className = 'quartier-chip px-2 sm:px-3 py-1 sm:py-1.5 rounded-full text-xs font-medium bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 hover:bg-primary hover:text-white transition-all';
                     chip.dataset.quartier = quartier;
                     chip.textContent = quartier;
                     chip.addEventListener('click', function() {
@@ -842,7 +973,7 @@
 
             if (suggestions.length > 0) {
                 suggestionsDiv.innerHTML = suggestions.map(s =>
-                    `<div class="px-4 py-2 hover:bg-primary hover:text-white cursor-pointer text-slate-900 dark:text-slate-100">${s}</div>`
+                    `<div class="px-3 sm:px-4 py-2 hover:bg-primary hover:text-white cursor-pointer text-slate-900 dark:text-slate-100 text-sm">${s}</div>`
                 ).join('');
                 suggestionsDiv.classList.remove('hidden');
 
@@ -1006,8 +1137,8 @@
 
             if (suggestions.length === 0) {
                 container.innerHTML = `
-                    <div class="text-center text-slate-500 py-8">
-                        <span class="material-symbols-outlined text-5xl mb-3 text-primary/30">search_off</span>
+                    <div class="text-center text-slate-500 py-6 sm:py-8">
+                        <span class="material-symbols-outlined text-4xl sm:text-5xl mb-2 sm:mb-3 text-primary/30">search_off</span>
                         <p class="text-sm font-medium">Aucun quartier trouvé</p>
                         <p class="text-xs mt-1">Essayez d'augmenter votre budget</p>
                     </div>
@@ -1022,26 +1153,26 @@
                     '<span class="text-orange-500 text-xs">⚠️ +' + Math.round((s.loyerEstime - budget)/budget*100) + '%</span>';
 
                 return `
-                    <div class="p-3 bg-white dark:bg-slate-800 rounded-lg hover:shadow-md transition-all cursor-pointer suggestion-item animate-fade-in" data-quartier="${s.nom}">
+                    <div class="p-2 sm:p-3 bg-white dark:bg-slate-800 rounded-lg hover:shadow-md transition-all cursor-pointer suggestion-item animate-fade-in" data-quartier="${s.nom}">
                         <div class="flex justify-between items-start">
                             <div>
-                                <h5 class="font-bold text-primary">${s.nom}</h5>
+                                <h5 class="font-bold text-primary text-sm sm:text-base">${s.nom}</h5>
                                 <p class="text-xs text-slate-500">${s.prixM2.toLocaleString()} FCFA/m²</p>
                             </div>
                             <div class="text-right">
-                                <p class="font-semibold">${s.loyerEstime.toLocaleString()} FCFA</p>
+                                <p class="font-semibold text-sm sm:text-base">${s.loyerEstime.toLocaleString()} FCFA</p>
                                 <p class="text-xs ${s.tendance.includes('+') ? 'text-green-600' : 'text-red-600'}">${s.tendance}</p>
                             </div>
                         </div>
                         <div class="flex justify-between items-center mt-2">
                             <span class="text-xs">Compatibilité:</span>
-                            <div class="w-24 h-2 bg-slate-200 rounded-full overflow-hidden">
+                            <div class="w-16 sm:w-24 h-1.5 sm:h-2 bg-slate-200 rounded-full overflow-hidden">
                                 <div class="h-full bg-primary" style="width: ${s.score}%"></div>
                             </div>
                             <span class="text-xs font-semibold">${s.score}%</span>
                         </div>
                         <div class="flex justify-between items-center mt-1">
-                            <span class="text-xs text-slate-500">${s.description.substring(0, 30)}...</span>
+                            <span class="text-xs text-slate-500">${s.description.substring(0, 25)}...</span>
                             ${budgetStatus}
                         </div>
                     </div>
@@ -1085,48 +1216,41 @@
         });
 
         // Synchronisation budget range/input
-const budgetRange = document.getElementById('budget-range');
-const budgetInput = document.getElementById('budget');
-const budgetDisplay = document.getElementById('budget-display'); // Si vous voulez garder l'affichage formaté
+        const budgetRange = document.getElementById('budget-range');
+        const budgetInput = document.getElementById('budget');
+        const budgetDisplay = document.getElementById('budget-display');
 
-if (budgetRange && budgetInput) {
-    // Mettre à jour l'input quand le range change
-    budgetRange.addEventListener('input', () => {
-        budgetInput.value = budgetRange.value;
-        // Optionnel : mettre à jour un affichage formaté
-        if (budgetDisplay) {
-            const value = parseInt(budgetRange.value);
-            budgetDisplay.textContent = value >= 1000000 ?
-                (value/1000000).toFixed(1) + 'M' :
-                Math.round(value/1000) + 'k';
+        if (budgetRange && budgetInput) {
+            budgetRange.addEventListener('input', () => {
+                budgetInput.value = budgetRange.value;
+                if (budgetDisplay) {
+                    const value = parseInt(budgetRange.value);
+                    budgetDisplay.textContent = value >= 1000000 ?
+                        (value/1000000).toFixed(1) + 'M' :
+                        Math.round(value/1000) + 'k';
+                }
+            });
+
+            budgetInput.addEventListener('input', () => {
+                let value = parseInt(budgetInput.value) || 50000;
+                value = Math.min(Math.max(value, 50000), 1000000);
+                budgetInput.value = value;
+                budgetRange.value = value;
+                if (budgetDisplay) {
+                    budgetDisplay.textContent = value >= 1000000 ?
+                        (value/1000000).toFixed(1) + 'M' :
+                        Math.round(value/1000) + 'k';
+                }
+            });
         }
-    });
 
-    // Mettre à jour le range quand l'input change
-    budgetInput.addEventListener('input', () => {
-        let value = parseInt(budgetInput.value) || 50000;
-        // S'assurer que la valeur reste dans les limites
-        value = Math.min(Math.max(value, 50000), 1000000);
-        budgetInput.value = value;
-        budgetRange.value = value;
-        // Optionnel : mettre à jour un affichage formaté
-        if (budgetDisplay) {
-            budgetDisplay.textContent = value >= 1000000 ?
-                (value/1000000).toFixed(1) + 'M' :
-                Math.round(value/1000) + 'k';
+        if (budgetInput) {
+            budgetInput.value = 300000;
         }
-    });
-}
-
-// Valeur par défaut du budget
-if (budgetInput) {
-    budgetInput.value = 300000;
-}
 
         // Initialisation
         loadQuartiers();
 
-        // Valeur par défaut du budget
         if (budgetDisplay) {
             budgetDisplay.textContent = '300k';
         }

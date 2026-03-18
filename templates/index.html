@@ -2,7 +2,7 @@
 <html lang="fr">
 <head>
     <meta charset="utf-8">
-    <meta content="width=device-width, initial-scale=1.0" name="viewport">
+    <meta content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=yes" name="viewport">
     <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
     <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet">
@@ -20,49 +20,117 @@
                     },
                     fontFamily: {
                         "display": ["Inter", "sans-serif"]
+                    },
+                    animation: {
+                        'scroll': 'scroll 25s linear infinite',
+                        'pause': 'pause',
+                    },
+                    keyframes: {
+                        scroll: {
+                            '0%': { transform: 'translateX(0)' },
+                            '100%': { transform: 'translateX(-50%)' },
+                        }
                     }
                 },
             },
         }
     </script>
     <style>
-        body { font-family: 'Inter', sans-serif; }
+        body { font-family: 'Inter', sans-serif; overflow-x: hidden; }
         .hero-gradient { background: linear-gradient(135deg, rgba(226, 114, 91, 0.05) 0%, rgba(19, 91, 236, 0.05) 100%); }
         .price-update { animation: slideIn 0.3s ease-out; }
         @keyframes slideIn {
             from { opacity: 0; transform: translateY(10px); }
             to { opacity: 1; transform: translateY(0); }
         }
+
+        /* Animation de scroll pour le carrousel */
+        .animate-scroll {
+            animation: scroll 25s linear infinite;
+            width: fit-content;
+        }
+
+        .group:hover .animate-scroll {
+            animation-play-state: paused;
+        }
+
+        /* Améliorations mobiles */
+        @media (max-width: 640px) {
+            h1 { font-size: 2rem !important; }
+            .text-5xl { font-size: 2.5rem !important; }
+            .px-4 { padding-left: 1rem !important; padding-right: 1rem !important; }
+        }
+
+        /* Éviter le débordement horizontal */
+        .overflow-x-hidden {
+            overflow-x: hidden;
+        }
+
+        /* Menu mobile */
+        #mobile-menu {
+            transition: transform 0.3s ease-in-out;
+            transform: translateX(-100%);
+        }
+
+        #mobile-menu.open {
+            transform: translateX(0);
+        }
     </style>
 </head>
-<body class="bg-background-light dark:bg-background-dark font-display text-slate-900 dark:text-slate-100 transition-colors duration-300">
+<body class="bg-background-light dark:bg-background-dark font-display text-slate-900 dark:text-slate-100 transition-colors duration-300 overflow-x-hidden">
     <div class="relative flex min-h-screen w-full flex-col overflow-x-hidden">
         <!-- Navigation Bar -->
-        <header class="sticky top-0 z-50 w-full border-b border-slate-200/60 dark:border-slate-800/60 bg-white/80 dark:bg-background-dark/80 backdrop-blur-md px-6 md:px-20 py-4">
+        <header class="sticky top-0 z-50 w-full border-b border-slate-200/60 dark:border-slate-800/60 bg-white/80 dark:bg-background-dark/80 backdrop-blur-md px-4 sm:px-6 lg:px-20 py-3 sm:py-4">
             <div class="max-w-7xl mx-auto flex items-center justify-between">
-                <div class="flex items-center gap-3">
+                <!-- Logo -->
+                <div class="flex items-center gap-2 sm:gap-3">
                     <div class="text-primary">
-                        <span class="material-symbols-outlined text-3xl font-bold">domain</span>
+                        <span class="material-symbols-outlined text-2xl sm:text-3xl font-bold">domain</span>
                     </div>
-                    <h2 class="text-slate-900 dark:text-slate-50 text-xl font-bold tracking-tight">Dakar Immo AI Predictor</h2>
+                    <h2 class="text-slate-900 dark:text-slate-50 text-lg sm:text-xl font-bold tracking-tight whitespace-nowrap">Dakar Immo AI</h2>
                 </div>
-                <div class="hidden md:flex flex-1 justify-end items-center gap-10">
-                    <nav class="flex items-center gap-8">
+
+                <!-- Desktop Navigation (caché sur mobile) -->
+                <div class="hidden md:flex flex-1 justify-end items-center gap-6 lg:gap-10">
+                    <nav class="flex items-center gap-4 lg:gap-8">
                         <a class="text-slate-600 dark:text-slate-400 hover:text-primary dark:hover:text-primary transition-colors text-sm font-semibold" href="/">Home</a>
-                        <a class="text-slate-600 dark:text-slate-400 hover:text-primary dark:hover:text-primary transition-colors text-sm font-semibold" href="/prediction">prediction</a>
-                        <a class="text-slate-600 dark:text-slate-400 hover:text-primary dark:hover:text-primary transition-colors text-sm font-semibold" href="/dashboard">dashboard</a>
+                        <a class="text-slate-600 dark:text-slate-400 hover:text-primary dark:hover:text-primary transition-colors text-sm font-semibold" href="/prediction">Prédiction</a>
+                        <a class="text-slate-600 dark:text-slate-400 hover:text-primary dark:hover:text-primary transition-colors text-sm font-semibold" href="/dashboard">Dashboard</a>
+                        <a class="text-orange-500 hover:text-orange-600 transition-colors text-sm font-semibold" href="/admin">Admin</a>
                     </nav>
                 </div>
+
+                <!-- Mobile Menu Button -->
                 <div class="md:hidden">
-                    <span class="material-symbols-outlined text-slate-900 dark:text-slate-100">menu</span>
+                    <button id="mobile-menu-btn" class="p-2 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-lg transition-colors">
+                        <span class="material-symbols-outlined text-slate-900 dark:text-slate-100">menu</span>
+                    </button>
                 </div>
             </div>
+
+            <!-- Mobile Menu Dropdown -->
+            <div id="mobile-menu" class="fixed top-0 left-0 h-full w-64 bg-white dark:bg-slate-900 shadow-2xl z-50 p-6 transform transition-transform duration-300 ease-in-out -translate-x-full md:hidden">
+                <div class="flex justify-between items-center mb-8">
+                    <span class="text-lg font-bold text-primary">Menu</span>
+                    <button id="close-menu-btn" class="p-2 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-lg">
+                        <span class="material-symbols-outlined">close</span>
+                    </button>
+                </div>
+                <nav class="flex flex-col gap-4">
+                    <a class="text-slate-600 dark:text-slate-400 hover:text-primary text-lg font-semibold py-2" href="/">Home</a>
+                    <a class="text-slate-600 dark:text-slate-400 hover:text-primary text-lg font-semibold py-2" href="/prediction">Prédiction</a>
+                    <a class="text-slate-600 dark:text-slate-400 hover:text-primary text-lg font-semibold py-2" href="/dashboard">Dashboard</a>
+                    <a class="text-orange-500 hover:text-orange-600 text-lg font-semibold py-2" href="/admin">Admin MLOps</a>
+                </nav>
+            </div>
+            <!-- Overlay pour mobile menu -->
+            <div id="menu-overlay" class="fixed inset-0 bg-black/50 z-40 hidden md:hidden"></div>
         </header>
 
-        <main class="flex-1 flex flex-col items-center justify-center px-4 py-12 md:py-24 hero-gradient relative">
-            <!-- Decorative Elements -->
-            <div class="absolute top-20 left-10 w-64 h-64 bg-terracotta/10 rounded-full blur-3xl -z-10"></div>
-            <div class="absolute bottom-20 right-10 w-96 h-96 bg-primary/10 rounded-full blur-3xl -z-10"></div>
+        <main class="flex-1 flex flex-col items-center justify-center px-4 py-8 sm:py-12 lg:py-24 hero-gradient relative">
+            <!-- Decorative Elements - ajustés pour mobile -->
+            <div class="absolute top-20 left-10 w-48 sm:w-64 h-48 sm:h-64 bg-terracotta/10 rounded-full blur-3xl -z-10"></div>
+            <div class="absolute bottom-20 right-10 w-64 sm:w-96 h-64 sm:h-96 bg-primary/10 rounded-full blur-3xl -z-10"></div>
 
             <div class="max-w-4xl w-full text-center space-y-8">
                 <!-- Hero Title -->
@@ -76,13 +144,19 @@
                 </div>
 
                 <!-- Search Component avec dropdown -->
-                <div class="max-w-2xl mx-auto w-full group">
-                    <div class="relative flex items-center bg-white dark:bg-slate-900 rounded-2xl p-2 shadow-2xl shadow-primary/10 border border-slate-200/50 dark:border-slate-800/50 transition-all focus-within:ring-2 focus-within:ring-primary/20">
-                        <div class="pl-4 text-slate-400 group-focus-within:text-primary transition-colors">
-                            <span class="material-symbols-outlined text-2xl">search</span>
+                <div class="max-w-2xl mx-auto w-full group px-2 sm:px-0">
+                    <div class="relative flex flex-col sm:flex-row items-stretch sm:items-center bg-white dark:bg-slate-900 rounded-xl sm:rounded-2xl p-2 shadow-2xl shadow-primary/10 border border-slate-200/50 dark:border-slate-800/50 transition-all focus-within:ring-2 focus-within:ring-primary/20">
+                        <div class="flex items-center flex-1">
+                            <div class="pl-3 sm:pl-4 text-slate-400 group-focus-within:text-primary transition-colors">
+                                <span class="material-symbols-outlined text-xl sm:text-2xl">search</span>
+                            </div>
+                            <input id="quartier-input" class="flex-1 border-none bg-transparent focus:ring-0 text-slate-900 dark:text-slate-100 placeholder:text-slate-400 text-base sm:text-lg py-3 sm:py-4 px-2 sm:px-3" placeholder="Entrez un quartier (ex: Almadies, Plateau...)" type="text" value="" autocomplete="off">
                         </div>
-                        <input id="quartier-input" class="flex-1 border-none bg-transparent focus:ring-0 text-slate-900 dark:text-slate-100 placeholder:text-slate-400 text-lg py-4 px-3" placeholder="Entrez un quartier (ex: Almadies, Plateau...)" type="text" value="" autocomplete="off">
-                        <button id="predict-btn" class="hidden md:flex items-center gap-2 bg-primary hover:bg-primary/90 text-white px-8 py-3 rounded-xl font-bold transition-all transform active:scale-95 shadow-lg shadow-primary/30">
+                        <button id="predict-btn-mobile" class="sm:hidden w-full mt-2 bg-primary hover:bg-primary/90 text-white py-3 rounded-lg font-bold transition-all flex items-center justify-center gap-2">
+                            <span>Prédire</span>
+                            <span class="material-symbols-outlined">trending_up</span>
+                        </button>
+                        <button id="predict-btn" class="hidden sm:flex items-center gap-2 bg-primary hover:bg-primary/90 text-white px-6 lg:px-8 py-3 rounded-xl font-bold transition-all transform active:scale-95 shadow-lg shadow-primary/30">
                             <span>Prédire</span>
                             <span class="material-symbols-outlined">trending_up</span>
                         </button>
@@ -92,66 +166,66 @@
                 </div>
 
                 <!-- Quick Filters -->
-                <div class="flex flex-wrap justify-center gap-3">
-                    <span class="text-slate-500 dark:text-slate-400 text-sm font-medium self-center mr-2">Populaire :</span>
-                    <button class="quick-filter px-4 py-2 rounded-full bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 hover:border-terracotta hover:text-terracotta text-slate-700 dark:text-slate-300 text-sm font-semibold transition-all shadow-sm" data-quartier="Almadies">Almadies</button>
-                    <button class="quick-filter px-4 py-2 rounded-full bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 hover:border-terracotta hover:text-terracotta text-slate-700 dark:text-slate-300 text-sm font-semibold transition-all shadow-sm" data-quartier="Plateau">Plateau</button>
-                    <button class="quick-filter px-4 py-2 rounded-full bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 hover:border-terracotta hover:text-terracotta text-slate-700 dark:text-slate-300 text-sm font-semibold transition-all shadow-sm" data-quartier="Ngor">Ngor</button>
-                    <button class="quick-filter px-4 py-2 rounded-full bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 hover:border-terracotta hover:text-terracotta text-slate-700 dark:text-slate-300 text-sm font-semibold transition-all shadow-sm" data-quartier="Fann">Fann</button>
-                    <button class="quick-filter px-4 py-2 rounded-full bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 hover:border-terracotta hover:text-terracotta text-slate-700 dark:text-slate-300 text-sm font-semibold transition-all shadow-sm" data-quartier="Mermoz">Mermoz</button>
+                <div class="flex flex-wrap justify-center gap-2 px-4">
+                    <span class="text-slate-500 dark:text-slate-400 text-xs sm:text-sm font-medium self-center">Populaire :</span>
+                    <button class="quick-filter px-3 py-1.5 sm:px-4 sm:py-2 rounded-full bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 hover:border-terracotta hover:text-terracotta text-slate-700 dark:text-slate-300 text-xs sm:text-sm font-semibold transition-all shadow-sm" data-quartier="Almadies">Almadies</button>
+                    <button class="quick-filter px-3 py-1.5 sm:px-4 sm:py-2 rounded-full bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 hover:border-terracotta hover:text-terracotta text-slate-700 dark:text-slate-300 text-xs sm:text-sm font-semibold transition-all shadow-sm" data-quartier="Plateau">Plateau</button>
+                    <button class="quick-filter px-3 py-1.5 sm:px-4 sm:py-2 rounded-full bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 hover:border-terracotta hover:text-terracotta text-slate-700 dark:text-slate-300 text-xs sm:text-sm font-semibold transition-all shadow-sm" data-quartier="Ngor">Ngor</button>
+                    <button class="quick-filter px-3 py-1.5 sm:px-4 sm:py-2 rounded-full bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 hover:border-terracotta hover:text-terracotta text-slate-700 dark:text-slate-300 text-xs sm:text-sm font-semibold transition-all shadow-sm" data-quartier="Fann">Fann</button>
+                    <button class="quick-filter px-3 py-1.5 sm:px-4 sm:py-2 rounded-full bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 hover:border-terracotta hover:text-terracotta text-slate-700 dark:text-slate-300 text-xs sm:text-sm font-semibold transition-all shadow-sm" data-quartier="Mermoz">Mermoz</button>
                 </div>
             </div>
 
-            <!-- Results Section (hidden by default) -->
-            <div id="results-section" class="mt-12 w-full max-w-4xl mx-auto hidden price-update">
-                <div class="bg-white dark:bg-slate-900 rounded-2xl shadow-2xl border border-slate-200 dark:border-slate-800 overflow-hidden">
-                    <div class="p-8">
-                        <div class="flex justify-between items-start mb-6">
+            <!-- Results Section -->
+            <div id="results-section" class="mt-8 sm:mt-12 w-full max-w-4xl mx-auto hidden price-update px-4">
+                <div class="bg-white dark:bg-slate-900 rounded-xl sm:rounded-2xl shadow-2xl border border-slate-200 dark:border-slate-800 overflow-hidden">
+                    <div class="p-4 sm:p-6 lg:p-8">
+                        <div class="flex flex-col sm:flex-row justify-between items-start gap-4 mb-6">
                             <div>
-                                <h2 class="text-2xl font-bold text-slate-900 dark:text-white">Résultat de l'estimation</h2>
-                                <p id="quartier-display" class="text-slate-500 dark:text-slate-400">Pour un appartement type</p>
+                                <h2 class="text-xl sm:text-2xl font-bold text-slate-900 dark:text-white">Résultat de l'estimation</h2>
+                                <p id="quartier-display" class="text-sm sm:text-base text-slate-500 dark:text-slate-400">Pour un appartement type</p>
                             </div>
-                            <span class="bg-terracotta/10 text-terracotta px-3 py-1 rounded-full text-sm font-semibold">Précision 85%</span>
+                            <span class="bg-terracotta/10 text-terracotta px-3 py-1 rounded-full text-xs sm:text-sm font-semibold self-start">Précision 85%</span>
                         </div>
 
-                        <div class="grid md:grid-cols-2 gap-8">
+                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-6 lg:gap-8">
                             <!-- Prix estimé -->
                             <div class="space-y-4">
-                                <div class="p-6 bg-gradient-to-br from-primary/5 to-terracotta/5 rounded-xl border border-primary/10">
-                                    <p class="text-sm text-slate-500 dark:text-slate-400 mb-2">Loyer mensuel estimé</p>
-                                    <p id="prix-estime" class="text-5xl font-bold text-primary">450 000 FCFA</p>
-                                    <p id="intervalle" class="text-sm text-slate-500 mt-2">Intervalle de confiance: ±15%</p>
+                                <div class="p-4 sm:p-6 bg-gradient-to-br from-primary/5 to-terracotta/5 rounded-xl border border-primary/10">
+                                    <p class="text-xs sm:text-sm text-slate-500 dark:text-slate-400 mb-2">Loyer mensuel estimé</p>
+                                    <p id="prix-estime" class="text-3xl sm:text-4xl lg:text-5xl font-bold text-primary break-words">450 000 FCFA</p>
+                                    <p id="intervalle" class="text-xs sm:text-sm text-slate-500 mt-2">Intervalle de confiance: ±15%</p>
                                 </div>
 
                                 <!-- Comparaison -->
-                                <div class="space-y-3">
-                                    <div class="flex justify-between items-center">
-                                        <span class="text-slate-600 dark:text-slate-300">Moyenne du quartier</span>
-                                        <span id="moyenne-quartier" class="font-bold">382 000 FCFA</span>
+                                <div class="space-y-2">
+                                    <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-1 sm:gap-0">
+                                        <span class="text-sm sm:text-base text-slate-600 dark:text-slate-300">Moyenne du quartier</span>
+                                        <span id="moyenne-quartier" class="font-bold text-sm sm:text-base">382 000 FCFA</span>
                                     </div>
-                                    <div class="flex justify-between items-center">
-                                        <span class="text-slate-600 dark:text-slate-300">Position</span>
-                                        <span id="position" class="text-terracotta font-semibold">+18% au-dessus</span>
+                                    <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-1 sm:gap-0">
+                                        <span class="text-sm sm:text-base text-slate-600 dark:text-slate-300">Position</span>
+                                        <span id="position" class="text-terracotta font-semibold text-sm sm:text-base">+18% au-dessus</span>
                                     </div>
                                 </div>
                             </div>
 
                             <!-- Détails et graphique -->
                             <div class="space-y-4">
-                                <h3 class="font-semibold text-slate-900 dark:text-white">Facteurs influents</h3>
+                                <h3 class="font-semibold text-base sm:text-lg text-slate-900 dark:text-white">Facteurs influents</h3>
                                 <div id="facteurs-list" class="space-y-2">
                                     <!-- Rempli par JS -->
                                 </div>
 
                                 <!-- Mini graphique de distribution -->
-                                <div class="mt-4 p-4 bg-slate-50 dark:bg-slate-800/50 rounded-lg">
-                                    <p class="text-sm text-slate-500 mb-2">Distribution des prix dans le quartier</p>
-                                    <div class="flex items-end h-16 gap-1">
-                                        <div class="flex-1 bg-slate-200 dark:bg-slate-700 rounded-t h-8"></div>
-                                        <div class="flex-1 bg-slate-200 dark:bg-slate-700 rounded-t h-12"></div>
-                                        <div class="flex-1 bg-primary/30 rounded-t h-14" style="background: #135bec40;"></div>
-                                        <div class="flex-1 bg-slate-200 dark:bg-slate-700 rounded-t h-10"></div>
-                                        <div class="flex-1 bg-slate-200 dark:bg-slate-700 rounded-t h-6"></div>
+                                <div class="mt-4 p-3 sm:p-4 bg-slate-50 dark:bg-slate-800/50 rounded-lg">
+                                    <p class="text-xs sm:text-sm text-slate-500 mb-2">Distribution des prix dans le quartier</p>
+                                    <div class="flex items-end h-12 sm:h-16 gap-1">
+                                        <div class="flex-1 bg-slate-200 dark:bg-slate-700 rounded-t h-6 sm:h-8"></div>
+                                        <div class="flex-1 bg-slate-200 dark:bg-slate-700 rounded-t h-8 sm:h-12"></div>
+                                        <div class="flex-1 bg-primary/30 rounded-t h-10 sm:h-14"></div>
+                                        <div class="flex-1 bg-slate-200 dark:bg-slate-700 rounded-t h-8 sm:h-10"></div>
+                                        <div class="flex-1 bg-slate-200 dark:bg-slate-700 rounded-t h-4 sm:h-6"></div>
                                     </div>
                                 </div>
                             </div>
@@ -161,240 +235,222 @@
             </div>
 
             <!-- Visual Showcase -->
-         <div class="mt-16 w-full max-w-6xl px-4 overflow-hidden relative">
-
-    <div class="text-center mb-10">
-        <h2 class="text-3xl font-bold text-slate-900 dark:text-slate-100">Explorez les Marchés de Dakar</h2>
-        <p class="text-slate-600 dark:text-slate-400 mt-2">Estimations basées sur notre IA v2.0 (Précision 85%)</p>
+            <!-- Visual Showcase - Version corrigée -->
+<div class="mt-12 sm:mt-16 w-full max-w-7xl px-4 overflow-hidden relative">
+    <div class="text-center mb-6 sm:mb-10">
+        <h2 class="text-xl sm:text-2xl lg:text-3xl font-bold text-slate-900 dark:text-slate-100">Explorez les Marchés de Dakar</h2>
+        <p class="text-sm sm:text-base text-slate-600 dark:text-slate-400 mt-2">Estimations basées sur notre IA v2.0 (Précision 85%)</p>
     </div>
 
     <div class="w-full overflow-hidden group">
-        <div class="flex gap-6 animate-scroll group-hover:animation-pause">
-
-            <div class="relative overflow-hidden rounded-2xl aspect-[4/3] shadow-lg flex-shrink-0 w-[calc(100%-1.5rem)] md:w-[calc(33.333%-1rem)]">
+        <div class="flex gap-3 sm:gap-6 animate-scroll group-hover:animation-pause">
+            <!-- Carte 1 -->
+            <div class="relative overflow-hidden rounded-xl sm:rounded-2xl aspect-[4/3] shadow-lg flex-shrink-0 w-[85vw] sm:w-[45vw] md:w-[30vw] lg:w-[350px] xl:w-[400px]">
                 <div class="absolute inset-0 bg-cover bg-center transition-transform duration-500 hover:scale-110" style="background-image: url('https://images.unsplash.com/photo-1600585154340-be6161a56a0c?auto=format&fit=crop&w=800&q=80');"></div>
                 <div class="absolute inset-0 bg-gradient-to-t from-slate-900/90 via-slate-900/20 to-transparent"></div>
-                <div class="absolute bottom-4 left-4 text-white">
+                <div class="absolute bottom-3 sm:bottom-4 left-3 sm:left-4 text-white">
                     <p class="text-xs font-bold uppercase tracking-widest text-orange-400 mb-1">Haut Standing</p>
-                    <h3 class="text-xl font-bold">Almadies</h3>
-                    <p class="text-sm opacity-90">Moyenne IA: 1.2M FCFA</p>
+                    <h3 class="text-base sm:text-xl font-bold">Almadies</h3>
+                    <p class="text-xs sm:text-sm opacity-90">Moyenne IA: 450K FCFA</p>
                 </div>
             </div>
 
-            <div class="relative overflow-hidden rounded-2xl aspect-[4/3] shadow-lg flex-shrink-0 w-[calc(100%-1.5rem)] md:w-[calc(33.333%-1rem)]">
+            <!-- Carte 2 -->
+            <div class="relative overflow-hidden rounded-xl sm:rounded-2xl aspect-[4/3] shadow-lg flex-shrink-0 w-[85vw] sm:w-[45vw] md:w-[30vw] lg:w-[350px] xl:w-[400px]">
                 <div class="absolute inset-0 bg-cover bg-center transition-transform duration-500 hover:scale-110" style="background-image: url('https://images.unsplash.com/photo-1512917774080-9991f1c4c750?auto=format&fit=crop&w=800&q=80');"></div>
                 <div class="absolute inset-0 bg-gradient-to-t from-slate-900/90 via-slate-900/20 to-transparent"></div>
-                <div class="absolute bottom-4 left-4 text-white">
+                <div class="absolute bottom-3 sm:bottom-4 left-3 sm:left-4 text-white">
                     <p class="text-xs font-bold uppercase tracking-widest text-blue-400 mb-1">Vue sur Mer</p>
-                    <h3 class="text-xl font-bold">Ngor & Virage</h3>
-                    <p class="text-sm opacity-90">Moyenne IA: 850K FCFA</p>
+                    <h3 class="text-base sm:text-xl font-bold">Ngor</h3>
+                    <p class="text-xs sm:text-sm opacity-90">Moyenne IA: 380K FCFA</p>
                 </div>
             </div>
 
-            <div class="relative overflow-hidden rounded-2xl aspect-[4/3] shadow-lg flex-shrink-0 w-[calc(100%-1.5rem)] md:w-[calc(33.333%-1rem)]">
+            <!-- Carte 3 -->
+            <div class="relative overflow-hidden rounded-xl sm:rounded-2xl aspect-[4/3] shadow-lg flex-shrink-0 w-[85vw] sm:w-[45vw] md:w-[30vw] lg:w-[350px] xl:w-[400px]">
                 <div class="absolute inset-0 bg-cover bg-center transition-transform duration-500 hover:scale-110" style="background-image: url('https://images.unsplash.com/photo-1545324418-cc1a3fa10c00?auto=format&fit=crop&w=800&q=80');"></div>
                 <div class="absolute inset-0 bg-gradient-to-t from-slate-900/90 via-slate-900/20 to-transparent"></div>
-                <div class="absolute bottom-4 left-4 text-white">
+                <div class="absolute bottom-3 sm:bottom-4 left-3 sm:left-4 text-white">
                     <p class="text-xs font-bold uppercase tracking-widest text-emerald-400 mb-1">Centre Ville</p>
-                    <h3 class="text-xl font-bold">Plateau</h3>
-                    <p class="text-sm opacity-90">Moyenne IA: 600K FCFA</p>
+                    <h3 class="text-base sm:text-xl font-bold">Plateau</h3>
+                    <p class="text-xs sm:text-sm opacity-90">Moyenne IA: 350K FCFA</p>
                 </div>
             </div>
 
-            <div class="relative overflow-hidden rounded-2xl aspect-[4/3] shadow-lg flex-shrink-0 w-[calc(100%-1.5rem)] md:w-[calc(33.333%-1rem)]">
+            <!-- Carte 4 -->
+            <div class="relative overflow-hidden rounded-xl sm:rounded-2xl aspect-[4/3] shadow-lg flex-shrink-0 w-[85vw] sm:w-[45vw] md:w-[30vw] lg:w-[350px] xl:w-[400px]">
                 <div class="absolute inset-0 bg-cover bg-center transition-transform duration-500 hover:scale-110" style="background-image: url('https://images.unsplash.com/photo-1590714992981-b54a01c8907f?auto=format&fit=crop&w=800&q=80');"></div>
                 <div class="absolute inset-0 bg-gradient-to-t from-slate-900/90 via-slate-900/20 to-transparent"></div>
-                <div class="absolute bottom-4 left-4 text-white">
+                <div class="absolute bottom-3 sm:bottom-4 left-3 sm:left-4 text-white">
                     <p class="text-xs font-bold uppercase tracking-widest text-red-400 mb-1">Authentique</p>
-                    <h3 class="text-xl font-bold">Ouakam</h3>
-                    <p class="text-sm opacity-90">Moyenne IA: 450K FCFA</p>
+                    <h3 class="text-base sm:text-xl font-bold">Ouakam</h3>
+                    <p class="text-xs sm:text-sm opacity-90">Moyenne IA: 300K FCFA</p>
                 </div>
             </div>
 
-            <div class="relative overflow-hidden rounded-2xl aspect-[4/3] shadow-lg flex-shrink-0 w-[calc(100%-1.5rem)] md:w-[calc(33.333%-1rem)]">
+            <!-- Carte 5 -->
+            <div class="relative overflow-hidden rounded-xl sm:rounded-2xl aspect-[4/3] shadow-lg flex-shrink-0 w-[85vw] sm:w-[45vw] md:w-[30vw] lg:w-[350px] xl:w-[400px]">
                 <div class="absolute inset-0 bg-cover bg-center transition-transform duration-500 hover:scale-110" style="background-image: url('https://images.unsplash.com/photo-1561504313-2d9f52b66710?auto=format&fit=crop&w=800&q=80');"></div>
                 <div class="absolute inset-0 bg-gradient-to-t from-slate-900/90 via-slate-900/20 to-transparent"></div>
-                <div class="absolute bottom-4 left-4 text-white">
-                    <p class="text-xs font-bold uppercase tracking-widest text-lime-400 mb-1">Résidentiel Calme</p>
-                    <h3 class="text-xl font-bold">Hann Maristes</h3>
-                    <p class="text-sm opacity-90">Moyenne IA: 550K FCFA</p>
+                <div class="absolute bottom-3 sm:bottom-4 left-3 sm:left-4 text-white">
+                    <p class="text-xs font-bold uppercase tracking-widest text-lime-400 mb-1">Résidentiel</p>
+                    <h3 class="text-base sm:text-xl font-bold">Mermoz</h3>
+                    <p class="text-xs sm:text-sm opacity-90">Moyenne IA: 340K FCFA</p>
                 </div>
             </div>
-
-            <div class="relative overflow-hidden rounded-2xl aspect-[4/3] shadow-lg flex-shrink-0 w-[calc(100%-1.5rem)] md:w-[calc(33.333%-1rem)] aria-hidden='true'">
-                <div class="absolute inset-0 bg-cover bg-center" style="background-image: url('https://images.unsplash.com/photo-1600585154340-be6161a56a0c?auto=format&fit=crop&w=800&q=80');"></div>
-                <div class="absolute inset-0 bg-gradient-to-t from-slate-900/90 via-slate-900/20 to-transparent"></div>
-                <div class="absolute bottom-4 left-4 text-white">
-                    <p class="text-xs font-bold uppercase tracking-widest text-orange-400 mb-1">Haut Standing</p>
-                    <h3 class="text-xl font-bold">Almadies</h3>
-                </div>
-            </div>
-            </div>
+        </div>
     </div>
 </div>
         </main>
 
         <!-- Stats Section -->
-        <section class="bg-white dark:bg-slate-900 py-16 px-6 border-y border-slate-100 dark:border-slate-800">
-            <div class="max-w-7xl mx-auto grid grid-cols-2 md:grid-cols-4 gap-8 text-center">
-                <div class="space-y-1">
-                    <p class="text-primary text-3xl font-extrabold">12k+</p>
-                    <p class="text-slate-500 dark:text-slate-400 text-sm font-medium">Annonces analysées</p>
+        <section class="bg-white dark:bg-slate-900 py-12 sm:py-16 px-4 sm:px-6 border-y border-slate-100 dark:border-slate-800">
+            <div class="max-w-7xl mx-auto grid grid-cols-2 md:grid-cols-4 gap-4 sm:gap-8 text-center">
+                <div class="space-y-1 p-2">
+                    <p class="text-primary text-2xl sm:text-3xl font-extrabold">12k+</p>
+                    <p class="text-slate-500 dark:text-slate-400 text-xs sm:text-sm font-medium">Annonces analysées</p>
                 </div>
-                <div class="space-y-1">
-                    <p class="text-terracotta text-3xl font-extrabold">98%</p>
-                    <p class="text-slate-500 dark:text-slate-400 text-sm font-medium">Précision des prix</p>
+                <div class="space-y-1 p-2">
+                    <p class="text-terracotta text-2xl sm:text-3xl font-extrabold">85%</p>
+                    <p class="text-slate-500 dark:text-slate-400 text-xs sm:text-sm font-medium">Précision IA</p>
                 </div>
-                <div class="space-y-1">
-                    <p class="text-primary text-3xl font-extrabold">24/7</p>
-                    <p class="text-slate-500 dark:text-slate-400 text-sm font-medium">Mise à jour temps réel</p>
+                <div class="space-y-1 p-2">
+                    <p class="text-primary text-2xl sm:text-3xl font-extrabold">24/7</p>
+                    <p class="text-slate-500 dark:text-slate-400 text-xs sm:text-sm font-medium">Mise à jour</p>
                 </div>
-                <div class="space-y-1">
-                    <p class="text-terracotta text-3xl font-extrabold">19</p>
-                    <p class="text-slate-500 dark:text-slate-400 text-sm font-medium">Communes couvertes</p>
+                <div class="space-y-1 p-2">
+                    <p class="text-terracotta text-2xl sm:text-3xl font-extrabold">40+</p>
+                    <p class="text-slate-500 dark:text-slate-400 text-xs sm:text-sm font-medium">Quartiers</p>
                 </div>
             </div>
         </section>
 
         <!-- Footer -->
-      <footer class="bg-background-light dark:bg-background-dark py-12 px-6 border-t border-slate-200 dark:border-slate-800">
-    <div class="max-w-7xl mx-auto flex flex-col md:flex-row justify-between items-center gap-8">
-        <div class="flex items-center gap-3">
-            <span class="material-symbols-outlined text-primary text-2xl">domain</span>
-            <div class="flex flex-col">
-                <span class="text-slate-900 dark:text-slate-100 font-bold text-lg">Dakar Immo AI</span>
-                <span class="text-xs text-primary font-semibold">Modèle IA • 85% de précision</span>
+        <footer class="bg-background-light dark:bg-background-dark py-8 sm:py-12 px-4 sm:px-6 border-t border-slate-200 dark:border-slate-800">
+            <div class="max-w-7xl mx-auto flex flex-col md:flex-row justify-between items-center gap-6 sm:gap-8">
+                <div class="flex items-center gap-3">
+                    <span class="material-symbols-outlined text-primary text-2xl">domain</span>
+                    <div class="flex flex-col">
+                        <span class="text-slate-900 dark:text-slate-100 font-bold text-base sm:text-lg">Dakar Immo AI</span>
+                        <span class="text-xs text-primary font-semibold">Modèle IA • 85% précision</span>
+                    </div>
+                </div>
+
+                <div class="flex flex-wrap justify-center gap-4 sm:gap-8 text-xs sm:text-sm text-slate-500 dark:text-slate-400 font-medium">
+                    <a class="hover:text-primary transition-colors" href="/">Accueil</a>
+                    <a class="hover:text-primary transition-colors" href="/prediction">Prédire</a>
+                    <a class="hover:text-primary transition-colors" href="/dashboard">Dashboard</a>
+                    <a class="hover:text-orange-500 transition-colors font-bold" href="/admin">Admin</a>
+                </div>
+
+                <div class="flex gap-3 sm:gap-4">
+                    <a href="https://www.linkedin.com/in/gana-faye-530b96246/" target="_blank" class="size-8 sm:size-10 flex items-center justify-center rounded-full bg-slate-200 dark:bg-slate-800 text-slate-600 dark:text-slate-300 hover:bg-[#0077b5] hover:text-white transition-all" title="LinkedIn">
+                        <span class="material-symbols-outlined text-base sm:text-lg">account_circle</span>
+                    </a>
+                    <a href="https://github.com/ganafaye" target="_blank" class="size-8 sm:size-10 flex items-center justify-center rounded-full bg-slate-200 dark:bg-slate-800 text-slate-600 dark:text-slate-300 hover:bg-black hover:text-white transition-all" title="GitHub">
+                        <span class="material-symbols-outlined text-base sm:text-lg">code</span>
+                    </a>
+                    <a href="mailto:ganafaye88@gmail.com" class="size-8 sm:size-10 flex items-center justify-center rounded-full bg-slate-200 dark:bg-slate-800 text-slate-600 dark:text-slate-300 hover:bg-primary hover:text-white transition-all" title="Contact Email">
+                        <span class="material-symbols-outlined text-base sm:text-lg">alternate_email</span>
+                    </a>
+                </div>
             </div>
-        </div>
 
-        <div class="flex gap-8 text-sm text-slate-500 dark:text-slate-400 font-medium">
-            <a class="hover:text-primary transition-colors" href="/">Accueil</a>
-            <a class="hover:text-primary transition-colors" href="/prediction">Prédire un prix</a>
-            <a class="hover:text-warning transition-colors font-bold text-orange-500" href="/admin">⚙️ Admin MLOps</a>
-        </div>
-
-        <div class="flex gap-4">
-            <a href="https://www.linkedin.com/in/gana-faye-530b96246/" target="_blank" class="size-10 flex items-center justify-center rounded-full bg-slate-200 dark:bg-slate-800 text-slate-600 dark:text-slate-300 hover:bg-[#0077b5] hover:text-white transition-all" title="LinkedIn">
-                <span class="material-symbols-outlined text-lg">account_circle</span>
-            </a>
-            <a href="https://github.com/ganafaye" target="_blank" class="size-10 flex items-center justify-center rounded-full bg-slate-200 dark:bg-slate-800 text-slate-600 dark:text-slate-300 hover:bg-black hover:text-white transition-all" title="GitHub">
-                <span class="material-symbols-outlined text-lg">code</span>
-            </a>
-            <a href="mailto:ganafaye88@gmail.com" class="size-10 flex items-center justify-center rounded-full bg-slate-200 dark:bg-slate-800 text-slate-600 dark:text-slate-300 hover:bg-primary hover:text-white transition-all" title="Contact Email">
-                <span class="material-symbols-outlined text-lg">alternate_email</span>
-            </a>
-        </div>
+            <div class="text-center mt-6 sm:mt-8 pt-6 sm:pt-8 border-t border-slate-100 dark:border-slate-800/50">
+                <p class="text-slate-400 dark:text-slate-600 text-xs">
+                    © 2026 <strong>Dakar Immo AI Predictor</strong>. Tous droits réservés.
+                </p>
+                <p class="mt-2 text-slate-500 dark:text-slate-400 text-xs sm:text-sm font-medium italic">
+                    Développé avec passion à Dakar par <span class="text-primary font-bold">Gana Faye</span>
+                </p>
+            </div>
+        </footer>
     </div>
 
-    <div class="text-center mt-8 pt-8 border-t border-slate-100 dark:border-slate-800/50">
-        <p class="text-slate-400 dark:text-slate-600 text-xs">
-            © 2026 **Dakar Immo AI Predictor**. Tous droits réservés.
-        </p>
-        <p class="mt-2 text-slate-500 dark:text-slate-400 text-sm font-medium italic">
-            Développé avec passion à Dakar par <span class="text-primary font-bold">Gana Faye</span>
-        </p>
-    </div>
-</footer>
-    </div>
-<script>
-    // Rendre le bouton Prédire fonctionnel
-    document.getElementById('predict-btn').addEventListener('click', function() {
-        window.location.href = '/prediction';
-    });
-
-    // Aussi pour le bouton de recherche (si tu veux que la barre de recherche redirige aussi)
-    const searchInput = document.querySelector('input[placeholder="Entrez un quartier..."]');
-    if (searchInput) {
-        searchInput.addEventListener('keypress', function(e) {
-            if (e.key === 'Enter') {
-                window.location.href = '/prediction';
-            }
-        });
-    }
-
-    // Pour les suggestions de quartiers (Almadies, Plateau, etc.)
-    document.querySelectorAll('.quick-filter, .quartier-chip').forEach(btn => {
-        btn.addEventListener('click', function() {
-            // Option 1: Rediriger directement vers la page de prédiction
-            window.location.href = '/prediction';
-
-            // Option 2: Si tu veux passer le quartier en paramètre
-            // const quartier = this.textContent.trim();
-            // window.location.href = `/prediction?quartier=${encodeURIComponent(quartier)}`;
-        });
-    });
-
-    // Pour les images/clics sur les cartes des quartiers
-    document.querySelectorAll('.group').forEach(card => {
-        card.addEventListener('click', function() {
-            window.location.href = '/prediction';
-        });
-    });
-</script>
     <script>
+        // Menu mobile
+        const mobileMenuBtn = document.getElementById('mobile-menu-btn');
+        const closeMenuBtn = document.getElementById('close-menu-btn');
+        const mobileMenu = document.getElementById('mobile-menu');
+        const menuOverlay = document.getElementById('menu-overlay');
+
+        if (mobileMenuBtn && mobileMenu && menuOverlay) {
+            mobileMenuBtn.addEventListener('click', () => {
+                mobileMenu.classList.remove('-translate-x-full');
+                menuOverlay.classList.remove('hidden');
+            });
+
+            closeMenuBtn.addEventListener('click', () => {
+                mobileMenu.classList.add('-translate-x-full');
+                menuOverlay.classList.add('hidden');
+            });
+
+            menuOverlay.addEventListener('click', () => {
+                mobileMenu.classList.add('-translate-x-full');
+                menuOverlay.classList.add('hidden');
+            });
+        }
+
+        // Rendre le bouton Prédire fonctionnel
+        const predictBtn = document.getElementById('predict-btn');
+        const predictBtnMobile = document.getElementById('predict-btn-mobile');
+
+        if (predictBtn) {
+            predictBtn.addEventListener('click', function() {
+                window.location.href = '/prediction';
+            });
+        }
+
+        if (predictBtnMobile) {
+            predictBtnMobile.addEventListener('click', function() {
+                window.location.href = '/prediction';
+            });
+        }
+
+        // Barre de recherche
+        const searchInput = document.querySelector('input[placeholder="Entrez un quartier..."]');
+        if (searchInput) {
+            searchInput.addEventListener('keypress', function(e) {
+                if (e.key === 'Enter') {
+                    window.location.href = '/prediction';
+                }
+            });
+        }
+
+        // Suggestions de quartiers
+        document.querySelectorAll('.quick-filter').forEach(btn => {
+            btn.addEventListener('click', function() {
+                window.location.href = '/prediction';
+            });
+        });
+
+        // Cartes des quartiers
+        document.querySelectorAll('.group .relative').forEach(card => {
+            card.addEventListener('click', function() {
+                window.location.href = '/prediction';
+            });
+            card.style.cursor = 'pointer';
+        });
+
         // Base de données fictive des quartiers
         const quartiersData = {
-            "Almadies": {
-                prixMoyen: 450000,
-                prixM2: 9000,
-                description: "Quartier chic avec vue mer",
-                facteurs: ["Vue mer", "Sécurité", "Commerces"]
-            },
-            "Plateau": {
-                prixMoyen: 350000,
-                prixM2: 7000,
-                description: "Centre des affaires",
-                facteurs: ["Proximité bureaux", "Transports", "Ambiance urbaine"]
-            },
-            "Ngor": {
-                prixMoyen: 380000,
-                prixM2: 7600,
-                description: "Village touristique",
-                facteurs: ["Plage", "Restaurants", "Vie nocturne"]
-            },
-            "Fann": {
-                prixMoyen: 320000,
-                prixM2: 6400,
-                description: "Université et hôpitaux",
-                facteurs: ["Proximité université", "Calme", "Espaces verts"]
-            },
-            "Mermoz": {
-                prixMoyen: 340000,
-                prixM2: 6800,
-                description: "Quartier résidentiel",
-                facteurs: ["Écoles", "Ambiance familiale", "Commerces"]
-            },
-            "Ouakam": {
-                prixMoyen: 300000,
-                prixM2: 6000,
-                description: "Phare et plages",
-                facteurs: ["Vue phare", "Plages", "Authentique"]
-            },
-            "Yoff": {
-                prixMoyen: 280000,
-                prixM2: 5600,
-                description: "Proximité aéroport",
-                facteurs: ["Aéroport", "Village", "Plages"]
-            },
-            "Sacre Coeur": {
-                prixMoyen: 330000,
-                prixM2: 6600,
-                description: "Quartier en développement",
-                facteurs: ["Commerces", "Restaurants", "Moderne"]
-            }
+            "Almadies": { prixMoyen: 450000, prixM2: 9000, description: "Quartier chic avec vue mer", facteurs: ["Vue mer", "Sécurité", "Commerces"] },
+            "Plateau": { prixMoyen: 350000, prixM2: 7000, description: "Centre des affaires", facteurs: ["Proximité bureaux", "Transports", "Ambiance urbaine"] },
+            "Ngor": { prixMoyen: 380000, prixM2: 7600, description: "Village touristique", facteurs: ["Plage", "Restaurants", "Vie nocturne"] },
+            "Fann": { prixMoyen: 320000, prixM2: 6400, description: "Université et hôpitaux", facteurs: ["Proximité université", "Calme", "Espaces verts"] },
+            "Mermoz": { prixMoyen: 340000, prixM2: 6800, description: "Quartier résidentiel", facteurs: ["Écoles", "Ambiance familiale", "Commerces"] },
+            "Ouakam": { prixMoyen: 300000, prixM2: 6000, description: "Phare et plages", facteurs: ["Vue phare", "Plages", "Authentique"] },
+            "Yoff": { prixMoyen: 280000, prixM2: 5600, description: "Proximité aéroport", facteurs: ["Aéroport", "Village", "Plages"] },
+            "Sacre Coeur": { prixMoyen: 330000, prixM2: 6600, description: "Quartier en développement", facteurs: ["Commerces", "Restaurants", "Moderne"] }
         };
 
-        // Liste des quartiers pour l'autocomplete
         const quartiersList = Object.keys(quartiersData);
-
-        // Éléments DOM
         const input = document.getElementById('quartier-input');
         const dropdown = document.getElementById('suggestions-dropdown');
-        const predictBtn = document.getElementById('predict-btn');
         const resultsSection = document.getElementById('results-section');
         const quickFilters = document.querySelectorAll('.quick-filter');
 
-        // Afficher/masquer dropdown
+        // Autocomplete
         input.addEventListener('input', function(e) {
             const value = this.value.toLowerCase();
             if (value.length < 1) {
@@ -402,17 +458,14 @@
                 return;
             }
 
-            const suggestions = quartiersList.filter(q =>
-                q.toLowerCase().includes(value)
-            ).slice(0, 5); // Limiter à 5 suggestions
+            const suggestions = quartiersList.filter(q => q.toLowerCase().includes(value)).slice(0, 5);
 
             if (suggestions.length > 0) {
                 dropdown.innerHTML = suggestions.map(s =>
-                    `<div class="px-6 py-3 hover:bg-slate-100 dark:hover:bg-slate-800 cursor-pointer text-slate-900 dark:text-slate-100">${s}</div>`
+                    `<div class="px-4 sm:px-6 py-2 sm:py-3 hover:bg-slate-100 dark:hover:bg-slate-800 cursor-pointer text-sm sm:text-base text-slate-900 dark:text-slate-100">${s}</div>`
                 ).join('');
                 dropdown.classList.remove('hidden');
 
-                // Ajouter événement clic sur suggestions
                 dropdown.querySelectorAll('div').forEach(div => {
                     div.addEventListener('click', function() {
                         input.value = this.textContent;
@@ -425,7 +478,7 @@
             }
         });
 
-        // Cacher dropdown quand on clique ailleurs
+        // Cacher dropdown
         document.addEventListener('click', function(e) {
             if (!input.contains(e.target) && !dropdown.contains(e.target)) {
                 dropdown.classList.add('hidden');
@@ -441,58 +494,39 @@
             });
         });
 
-        // Bouton prédire
-        predictBtn.addEventListener('click', function() {
-            const quartier = input.value.trim();
-            if (quartier && quartiersList.includes(quartier)) {
-                predictPrice(quartier);
-            } else if (quartier) {
-                // Si le quartier n'est pas dans la liste, utiliser "Almadies" par défaut
-                predictPrice('Almadies');
-                input.value = 'Almadies';
-            }
-        });
-
         // Fonction de prédiction
         function predictPrice(quartier) {
             const data = quartiersData[quartier] || quartiersData['Almadies'];
-
-            // Simulation d'un prix avec variation aléatoire
             const basePrice = data.prixMoyen;
-            const variation = (Math.random() * 0.3 - 0.15) * basePrice; // ±15%
+            const variation = (Math.random() * 0.3 - 0.15) * basePrice;
             const estimatedPrice = Math.round(basePrice + variation);
 
-            // Mettre à jour l'affichage
             document.getElementById('quartier-display').textContent = `Quartier: ${quartier}`;
             document.getElementById('prix-estime').textContent = estimatedPrice.toLocaleString() + ' FCFA';
 
             const lowerBound = Math.round(estimatedPrice * 0.85).toLocaleString();
             const upperBound = Math.round(estimatedPrice * 1.15).toLocaleString();
-            document.getElementById('intervalle').textContent = `Intervalle de confiance: ${lowerBound} - ${upperBound} FCFA`;
+            document.getElementById('intervalle').textContent = `Intervalle: ${lowerBound} - ${upperBound} FCFA`;
 
             document.getElementById('moyenne-quartier').textContent = data.prixMoyen.toLocaleString() + ' FCFA';
 
             const percentDiff = ((estimatedPrice - data.prixMoyen) / data.prixMoyen * 100).toFixed(1);
-            const position = estimatedPrice > data.prixMoyen ? '+' + percentDiff + '% au-dessus' : percentDiff + '% en dessous';
+            const position = estimatedPrice > data.prixMoyen ? '+' + percentDiff + '%' : percentDiff + '%';
             document.getElementById('position').textContent = position;
 
-            // Facteurs influents
             const facteursList = document.getElementById('facteurs-list');
             facteursList.innerHTML = data.facteurs.map(facteur =>
-                `<div class="flex items-center gap-2">
+                `<div class="flex items-center gap-2 text-sm sm:text-base">
                     <span class="material-symbols-outlined text-terracotta text-sm">check_circle</span>
                     <span class="text-slate-600 dark:text-slate-300">${facteur}</span>
                 </div>`
             ).join('');
 
-            // Afficher les résultats
             resultsSection.classList.remove('hidden');
-
-            // Scroll vers les résultats
             resultsSection.scrollIntoView({ behavior: 'smooth', block: 'start' });
         }
 
-        // Prédiction avec Enter
+        // Enter key
         input.addEventListener('keypress', function(e) {
             if (e.key === 'Enter') {
                 predictBtn.click();
