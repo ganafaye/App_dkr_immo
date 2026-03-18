@@ -1,0 +1,15 @@
+name: Render Keep Alive 🚀
+
+on:
+  schedule:
+    - cron: '*/10 * * * *'  # 10 minutes : Le "Sweet Spot"
+  workflow_dispatch:        # Pour tester manuellement sur GitHub
+
+jobs:
+  ping-render:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Wake up Dakar Immo App
+        run: |
+          curl -I -s https://app-dkr-immo.onrender.com/prediction | grep "HTTP/"
+          echo "✅ Heartbeat (10min) envoyé avec succès !"
