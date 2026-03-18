@@ -347,7 +347,7 @@ with st.sidebar:
         </div>
     """, unsafe_allow_html=True)
 
-    if st.button("🚪 Déconnexion", use_container_width=True):
+    if st.button("🚪 Déconnexion", width='stretch'):
         st.session_state["password_correct"] = False
         st.rerun()
 
@@ -400,7 +400,7 @@ with tab1:
 
         fig = px.line(x=dates, y=r2_scores, labels={'x': 'Date', 'y': 'Score R²'})
         fig.update_layout(height=300, margin=dict(l=0, r=0, t=0, b=0))
-        st.plotly_chart(fig, use_container_width=True)
+        st.plotly_chart(fig, width='stretch')
 
     with col2:
         st.subheader("🎯 Distribution des erreurs")
@@ -409,7 +409,7 @@ with tab1:
 
         fig = px.histogram(errors, nbins=30, labels={'value': 'Erreur (FCFA)'})
         fig.update_layout(height=300, margin=dict(l=0, r=0, t=0, b=0))
-        st.plotly_chart(fig, use_container_width=True)
+        st.plotly_chart(fig, width='stretch')
 
     # Importance des features
     st.subheader("🌟 Importance des features")
@@ -419,7 +419,7 @@ with tab1:
 
     fig = px.bar(x=importances, y=features, orientation='h', labels={'x': 'Importance (%)', 'y': ''})
     fig.update_layout(height=300, margin=dict(l=0, r=0, t=0, b=0))
-    st.plotly_chart(fig, use_container_width=True)
+    st.plotly_chart(fig, width='stretch')
 
 # --- TAB 2: ENTRAÎNEMENT ---
 with tab2:
@@ -473,14 +473,14 @@ with tab2:
                     df_filtered = df_raw[df_raw['prix'] <= 2000000]
                     fig = px.histogram(df_filtered, x='prix', nbins=50,
                                        title="Distribution des prix (≤ 2M FCFA)")
-                    st.plotly_chart(fig, use_container_width=True)
+                    st.plotly_chart(fig, width='stretch')
 
             with tab_corr:
                 numeric_cols = df_raw.select_dtypes(include=[np.number]).columns
                 if len(numeric_cols) > 1:
                     corr_matrix = df_raw[numeric_cols].corr()
                     fig = px.imshow(corr_matrix, text_auto=True, aspect="auto")
-                    st.plotly_chart(fig, use_container_width=True)
+                    st.plotly_chart(fig, width='stretch')
 
         st.divider()
         st.subheader("🚀 Entraînement du Challenger")
@@ -494,7 +494,7 @@ with tab2:
             min_samples_split = st.slider("Min samples split", 2, 20, 5)
             min_samples_leaf = st.slider("Min samples leaf", 1, 10, 2)
 
-        if st.button("🏋️ Lancer l'entraînement", use_container_width=True, type="primary"):
+        if st.button("🏋️ Lancer l'entraînement", width='stretch', type="primary"):
             with st.spinner("Entraînement en cours... Cela peut prendre quelques minutes."):
                 try:
                     # Simulation de progression
@@ -580,14 +580,14 @@ with tab2:
                     }
 
                     df_comp = pd.DataFrame(comparison_data)
-                    st.dataframe(df_comp, use_container_width=True)
+                    st.dataframe(df_comp, width='stretch')
 
                     # Boutons de déploiement
                     st.subheader("📦 Déploiement")
                     col1, col2, col3 = st.columns(3)
 
                     with col1:
-                        if st.button("✅ Promouvoir", use_container_width=True, key="promote"):
+                        if st.button("✅ Promouvoir", width='stretch', key="promote"):
                             # Archiver l'ancien modèle
                             timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
 
@@ -620,11 +620,11 @@ with tab2:
                             st.rerun()
 
                     with col2:
-                        if st.button("❌ Rejeter", use_container_width=True, key="reject"):
+                        if st.button("❌ Rejeter", width='stretch', key="reject"):
                             st.warning("Challenger rejeté")
 
                     with col3:
-                        if st.button("💾 Sauvegarder", use_container_width=True, key="save"):
+                        if st.button("💾 Sauvegarder", width='stretch', key="save"):
                             # Sauvegarder comme challenger sans déployer
                             timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
                             challenger_path = os.path.join(ARCHIVE_DIR, f"challenger_{timestamp}.pkl")
@@ -715,7 +715,7 @@ with tab3:
             st.metric("Dernière archive", archives[0]['date'].strftime('%d/%m/%Y'))
 
         # Bouton de nettoyage
-        if st.button("🧹 Nettoyer les anciennes archives (> 30 jours)", use_container_width=True):
+        if st.button("🧹 Nettoyer les anciennes archives (> 30 jours)", width='stretch'):
             cutoff = datetime.now() - pd.Timedelta(days=30)
             deleted = 0
 
