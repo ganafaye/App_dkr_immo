@@ -35,6 +35,17 @@
             },
         }
     </script>
+    <script>
+  if ('serviceWorker' in navigator) {
+    window.addEventListener('load', function() {
+      navigator.serviceWorker.register('/sw.js').then(function(registration) {
+        console.log('PWA : ServiceWorker enregistré avec succès ! Scope: ', registration.scope);
+      }, function(err) {
+        console.log('PWA : Échec de l\'enregistrement du ServiceWorker: ', err);
+      });
+    });
+  }
+</script>
     <style>
         body { font-family: 'Inter', sans-serif; overflow-x: hidden; }
         .hero-gradient { background: linear-gradient(135deg, rgba(226, 114, 91, 0.05) 0%, rgba(19, 91, 236, 0.05) 100%); }

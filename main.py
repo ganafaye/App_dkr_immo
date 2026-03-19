@@ -4,6 +4,8 @@ from dotenv import load_dotenv
 from fastapi import FastAPI, Request, Form
 from fastapi.responses import HTMLResponse
 from fastapi.templating import Jinja2Templates
+from fastapi.responses import FileResponse
+from fastapi.staticfiles import StaticFiles
 import joblib
 import numpy as np
 import uvicorn
@@ -13,7 +15,21 @@ from config import MODEL_PATH, TEMPLATES_DIR, SERVER_HOST, SERVER_PORT
 from api.preprocessor import preprocess_input
 
 app = FastAPI(title="Dakar Rent Predictor")
+# 1. Monter le dossier static pour les icônes (déjà fait ?)
+app.mount("/static", StaticFiles(directory="static"), name="static")
 
+
+# 2. Les routes PWA spécifiques pour la racine
+# Ces fichiers sont physiquement dans /static/ mais servis à la racine.
+
+@app.get("/manifest.json")
+async def get_manifest():
+    return FileResponse("static/manifest.json", media_type="application/json")
+
+@app.get("/sw.js")
+async def get_sw():
+    # Attention, le type mime 'application/javascript' est important !
+    return FileResponse("static/sw.js", media_type="application/javascript")
 # Configuration des templates
 templates = Jinja2Templates(directory=str(TEMPLATES_DIR))
 
